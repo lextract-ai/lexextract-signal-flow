@@ -13,12 +13,6 @@ const LEGAL_TERMS = [
 
 const SIGNAL_TERMS = ["Change of Control", "Governing Law", "Termination", "AGB", "Shareholder Agreement"];
 
-const MESSAGES = [
-  "Thousands of pages.",
-  "Hidden risks.",
-  "Lextract makes sense of it all."
-];
-
 interface FloatingTextProps {
   text: string;
   isSignal: boolean;
@@ -42,17 +36,17 @@ const FloatingText = ({ text, isSignal, delay, x, y }: FloatingTextProps) => {
 
   return (
     <div
-      className={`absolute text-xs font-mono tracking-wider uppercase select-none transition-all duration-1000 whitespace-nowrap ${
+      className={`absolute text-xs font-sans tracking-wider uppercase select-none transition-all duration-1500 whitespace-nowrap ${
         isSignal && isTransformed 
-          ? 'text-signal opacity-100 filter-none scale-100 z-20' 
-          : 'text-noise opacity-30'
+          ? 'text-signal-glow opacity-100 filter-none scale-110 z-20' 
+          : 'text-noise opacity-25'
       }`}
       style={{
         left: `${x}%`,
         top: `${y}%`,
         animationDelay: `${delay}ms`,
-        fontFamily: 'ui-monospace, monospace',
-        transform: `translate(-50%, -50%)` // Center the text on its position
+        transform: `translate(-50%, -50%)`,
+        textShadow: isSignal && isTransformed ? '0 0 8px hsl(var(--lextract-electric) / 0.6)' : 'none'
       }}
     >
       {text}
@@ -60,34 +54,13 @@ const FloatingText = ({ text, isSignal, delay, x, y }: FloatingTextProps) => {
   );
 };
 
-const MessageOverlay = ({ message, delay }: { message: string; delay: number }) => {
-  return (
-    <div
-      className="absolute inset-0 flex items-center justify-center z-30"
-      style={{ animationDelay: `${delay}ms` }}
-    >
-      <div className="message-fade text-center">
-        <div className="bg-lextract-navy/80 backdrop-blur-sm rounded-lg px-8 py-4">
-          <p className="text-lg text-lextract-electric font-light tracking-wide">
-            {message}
-          </p>
-        </div>
-      </div>
-    </div>
-  );
-};
-
 export const LextractHero = () => {
   const [animationCycle, setAnimationCycle] = useState(0);
-  const [showMessages, setShowMessages] = useState(false);
   
   useEffect(() => {
     const interval = setInterval(() => {
       setAnimationCycle(prev => prev + 1);
-      setShowMessages(true);
-      
-      setTimeout(() => setShowMessages(false), 12000);
-    }, 15000);
+    }, 8000); // Reset beam every 8 seconds
     
     return () => clearInterval(interval);
   }, []);
@@ -96,12 +69,12 @@ export const LextractHero = () => {
     const elements = [];
     const usedPositions = new Set();
     
-    // Create a grid system to prevent overlapping
-    const gridCols = 12;
-    const gridRows = 8;
+    // Create a grid system to prevent overlapping - reduced density
+    const gridCols = 10;
+    const gridRows = 6;
     
-    // Generate floating text elements with grid positioning
-    for (let i = 0; i < 30; i++) {
+    // Reduced number of terms by ~40% (from 30 to 18)
+    for (let i = 0; i < 18; i++) {
       const text = LEGAL_TERMS[Math.floor(Math.random() * LEGAL_TERMS.length)];
       const isSignal = SIGNAL_TERMS.includes(text);
       
@@ -119,9 +92,9 @@ export const LextractHero = () => {
         usedPositions.add(gridPos);
         
         const [col, row] = gridPos.split('-').map(Number);
-        const x = (col / gridCols) * 90 + 5; // 5% to 95% width
-        const y = (row / gridRows) * 80 + 10; // 10% to 90% height
-        const delay = Math.random() * 3000 + (isSignal ? 5000 : 0);
+        const x = (col / gridCols) * 85 + 7.5; // 7.5% to 92.5% width
+        const y = (row / gridRows) * 75 + 15; // 15% to 90% height
+        const delay = Math.random() * 4000 + (isSignal ? 3000 : 0);
         
         elements.push(
           <FloatingText
@@ -140,7 +113,7 @@ export const LextractHero = () => {
   };
 
   return (
-    <div className="relative w-full h-screen bg-lextract-navy overflow-hidden">
+    <div className="relative w-full h-screen bg-lextract-navy overflow-hidden font-sans">
       {/* Background Texture */}
       <div className="absolute inset-0 bg-gradient-to-br from-lextract-navy via-lextract-darkgray to-lextract-navy" />
       
@@ -149,53 +122,51 @@ export const LextractHero = () => {
         {generateTextElements()}
       </div>
       
-      {/* Energy Beam Sweep */}
+      {/* Vertical Beam Sweep (Left to Right) */}
       <div 
-        className="absolute inset-0 beam-sweep z-10"
+        className="absolute inset-0 vertical-beam-sweep z-10"
         key={`beam-${animationCycle}`}
       />
       
-      {/* Signal Wave Pattern */}
-      <div className="absolute bottom-0 left-0 right-0 h-1 z-10">
-        <div className="signal-wave h-full origin-left" />
-      </div>
+      {/* Enhanced Grid Overlay with Scanlines */}
+      <div 
+        className="absolute inset-0 opacity-[0.08] z-5"
+        style={{
+          backgroundImage: `
+            linear-gradient(rgba(195, 255, 255, 0.3) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(195, 255, 255, 0.15) 1px, transparent 1px)
+          `,
+          backgroundSize: '40px 40px'
+        }}
+      />
       
-      {/* Message Overlays */}
-      {showMessages && (
-        <>
-          <MessageOverlay message={MESSAGES[0]} delay={2000} />
-          <MessageOverlay message={MESSAGES[1]} delay={6000} />
-          <MessageOverlay message={MESSAGES[2]} delay={10000} />
-        </>
-      )}
+      {/* Vertical Scanlines */}
+      <div 
+        className="absolute inset-0 opacity-[0.05] z-5"
+        style={{
+          backgroundImage: `linear-gradient(90deg, transparent 0%, rgba(195, 255, 255, 0.1) 50%, transparent 100%)`,
+          backgroundSize: '3px 100%',
+          animation: 'scanlineMove 12s linear infinite'
+        }}
+      />
       
-      {/* Final Title */}
-      <div className="absolute inset-0 flex flex-col items-center justify-center z-40">
-        <div 
-          className="text-center opacity-0 animate-[messageSlide_4s_ease-in-out_13s_forwards]"
-          style={{ animationFillMode: 'forwards' }}
-        >
-          <h1 className="text-4xl md:text-6xl font-light text-foreground mb-4 tracking-wide">
-            See what matters.{' '}
-            <span className="text-lextract-electric font-normal">Instantly.</span>
+      {/* Main Content */}
+      <div className="absolute inset-0 flex flex-col items-center justify-center z-40 px-8">
+        <div className="text-center max-w-4xl">
+          <h1 className="text-4xl md:text-6xl lg:text-7xl font-light text-foreground mb-6 tracking-tight leading-tight">
+            We build AI that{' '}
+            <span className="text-lextract-electric font-medium">speaks legal</span>
           </h1>
-          <p className="text-lg text-muted-foreground font-light tracking-wider">
-            AI-powered due diligence for transaction lawyers.
+          <p className="text-lg md:text-xl text-muted-foreground font-light tracking-wide leading-relaxed max-w-2xl mx-auto">
+            Lextract helps deal lawyers cut through complexity with explainable, precision AI.
           </p>
         </div>
       </div>
       
-      {/* Subtle Grid Overlay */}
-      <div 
-        className="absolute inset-0 opacity-5"
-        style={{
-          backgroundImage: `
-            linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)
-          `,
-          backgroundSize: '50px 50px'
-        }}
-      />
+      {/* Signal Wave Pattern at Bottom */}
+      <div className="absolute bottom-0 left-0 right-0 h-1 z-10">
+        <div className="signal-wave h-full origin-left" />
+      </div>
     </div>
   );
 };

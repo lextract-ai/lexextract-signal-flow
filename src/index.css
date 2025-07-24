@@ -143,20 +143,40 @@ All colors MUST be HSL.
   50% { opacity: 0.7; }
 }
 
-@keyframes beamSweep {
+@keyframes verticalBeamSweep {
   0% { 
     transform: translateX(-100%); 
     opacity: 0;
   }
   10% { 
-    opacity: 0.8;
+    opacity: 0.6;
   }
   90% { 
-    opacity: 0.8;
+    opacity: 0.6;
   }
   100% { 
     transform: translateX(100vw); 
     opacity: 0;
+  }
+}
+
+@keyframes scanlineMove {
+  0% { 
+    transform: translateX(-100%); 
+  }
+  100% { 
+    transform: translateX(100vw); 
+  }
+}
+
+@keyframes textPulse {
+  0%, 100% { 
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% { 
+    opacity: 0.8;
+    transform: scale(1.05);
   }
 }
 
@@ -201,26 +221,27 @@ All colors MUST be HSL.
 
 /* Lextract Animation Classes */
 .text-noise {
-  filter: blur(2px);
-  opacity: 0.3;
-  animation: textFloat 6s ease-in-out infinite, textFlicker 2s ease-in-out infinite;
+  filter: blur(1.5px);
+  opacity: 0.25;
+  animation: textFloat 8s ease-in-out infinite, textFlicker 3s ease-in-out infinite;
 }
 
-.text-signal {
+.text-signal-glow {
   filter: blur(0px);
   opacity: 1;
-  animation: textClarify 1s ease-out forwards;
+  color: hsl(var(--lextract-electric));
+  animation: textClarify 1.5s ease-out forwards, textPulse 4s ease-in-out infinite;
 }
 
-.beam-sweep {
+.vertical-beam-sweep {
   background: linear-gradient(90deg, 
     transparent 0%, 
-    hsl(var(--lextract-teal) / 0.1) 30%,
-    hsl(var(--lextract-electric) / 0.3) 50%,
-    hsl(var(--lextract-teal) / 0.1) 70%,
+    hsl(var(--lextract-teal) / 0.05) 20%,
+    hsl(var(--lextract-electric) / 0.15) 50%,
+    hsl(var(--lextract-teal) / 0.05) 80%,
     transparent 100%
   );
-  animation: beamSweep 12s linear infinite;
+  animation: verticalBeamSweep 8s linear infinite;
 }
 
 .signal-wave {
@@ -228,9 +249,5 @@ All colors MUST be HSL.
     hsl(var(--lextract-teal)), 
     hsl(var(--lextract-electric))
   );
-  animation: signalWave 3s ease-in-out infinite;
-}
-
-.message-fade {
-  animation: messageSlide 4s ease-in-out;
+  animation: signalWave 4s ease-in-out infinite;
 }
