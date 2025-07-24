@@ -42,7 +42,7 @@ const FloatingText = ({ text, isSignal, delay, x, y }: FloatingTextProps) => {
 
   return (
     <div
-      className={`absolute text-xs font-mono tracking-wider uppercase select-none transition-all duration-1000 ${
+      className={`absolute text-xs font-mono tracking-wider uppercase select-none transition-all duration-1000 whitespace-nowrap ${
         isSignal && isTransformed 
           ? 'text-signal opacity-100 filter-none scale-100 z-20' 
           : 'text-noise opacity-30'
@@ -51,7 +51,8 @@ const FloatingText = ({ text, isSignal, delay, x, y }: FloatingTextProps) => {
         left: `${x}%`,
         top: `${y}%`,
         animationDelay: `${delay}ms`,
-        fontFamily: 'ui-monospace, monospace'
+        fontFamily: 'ui-monospace, monospace',
+        transform: `translate(-50%, -50%)` // Center the text on its position
       }}
     >
       {text}
@@ -66,9 +67,11 @@ const MessageOverlay = ({ message, delay }: { message: string; delay: number }) 
       style={{ animationDelay: `${delay}ms` }}
     >
       <div className="message-fade text-center">
-        <p className="text-lg text-lextract-electric font-light tracking-wide">
-          {message}
-        </p>
+        <div className="bg-lextract-navy/80 backdrop-blur-sm rounded-lg px-8 py-4">
+          <p className="text-lg text-lextract-electric font-light tracking-wide">
+            {message}
+          </p>
+        </div>
       </div>
     </div>
   );
@@ -91,25 +94,46 @@ export const LextractHero = () => {
 
   const generateTextElements = () => {
     const elements = [];
+    const usedPositions = new Set();
     
-    // Generate floating text elements
-    for (let i = 0; i < 40; i++) {
+    // Create a grid system to prevent overlapping
+    const gridCols = 12;
+    const gridRows = 8;
+    
+    // Generate floating text elements with grid positioning
+    for (let i = 0; i < 30; i++) {
       const text = LEGAL_TERMS[Math.floor(Math.random() * LEGAL_TERMS.length)];
       const isSignal = SIGNAL_TERMS.includes(text);
-      const x = Math.random() * 85 + 5; // 5% to 90% width
-      const y = Math.random() * 85 + 5; // 5% to 90% height
-      const delay = Math.random() * 3000 + (isSignal ? 5000 : 0);
       
-      elements.push(
-        <FloatingText
-          key={`${i}-${animationCycle}`}
-          text={text}
-          isSignal={isSignal}
-          delay={delay}
-          x={x}
-          y={y}
-        />
-      );
+      // Find an available grid position
+      let gridPos;
+      let attempts = 0;
+      do {
+        const col = Math.floor(Math.random() * gridCols);
+        const row = Math.floor(Math.random() * gridRows);
+        gridPos = `${col}-${row}`;
+        attempts++;
+      } while (usedPositions.has(gridPos) && attempts < 50);
+      
+      if (attempts < 50) {
+        usedPositions.add(gridPos);
+        
+        const [col, row] = gridPos.split('-').map(Number);
+        const x = (col / gridCols) * 90 + 5; // 5% to 95% width
+        const y = (row / gridRows) * 80 + 10; // 10% to 90% height
+        const delay = Math.random() * 3000 + (isSignal ? 5000 : 0);
+        
+        elements.push(
+          <FloatingText
+            key={`${i}-${animationCycle}`}
+            text={text}
+            isSignal={isSignal}
+            delay={delay}
+            x={x}
+            y={y}
+          />
+        );
+      }
     }
     
     return elements;
