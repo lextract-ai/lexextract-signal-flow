@@ -61,6 +61,15 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				// Lextract Brand Colors
+				lextract: {
+					navy: 'hsl(var(--lextract-navy))',
+					darkgray: 'hsl(var(--lextract-dark-gray))',
+					teal: 'hsl(var(--lextract-teal))',
+					electric: 'hsl(var(--lextract-electric))',
+					noise: 'hsl(var(--lextract-noise))',
+					signal: 'hsl(var(--lextract-signal))'
 				}
 			},
 			borderRadius: {

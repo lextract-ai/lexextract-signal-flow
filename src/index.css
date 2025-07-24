@@ -8,33 +8,47 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* Lextract Design System */
+    --background: 218 25% 6%;
+    --foreground: 210 40% 98%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card: 220 20% 8%;
+    --card-foreground: 210 40% 98%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover: 220 20% 8%;
+    --popover-foreground: 210 40% 98%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    --primary: 189 100% 45%;
+    --primary-foreground: 218 25% 6%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 195 100% 75%;
+    --secondary-foreground: 218 25% 6%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 217 32% 15%;
+    --muted-foreground: 215 20% 65%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 189 100% 45%;
+    --accent-foreground: 218 25% 6%;
 
-    --destructive: 0 84.2% 60.2%;
+    --destructive: 0 84% 60%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --border: 217 32% 15%;
+    --input: 217 32% 15%;
+    --ring: 189 100% 45%;
+
+    /* Lextract Specific Colors */
+    --lextract-navy: 218 25% 6%;
+    --lextract-dark-gray: 220 15% 12%;
+    --lextract-teal: 189 100% 45%;
+    --lextract-electric: 195 100% 75%;
+    --lextract-noise: 215 10% 25%;
+    --lextract-signal: 189 100% 65%;
+
+    /* Animation Variables */
+    --beam-glow: 189 100% 45%;
+    --text-blur: blur(2px);
+    --text-clear: blur(0px);
 
     --radius: 0.5rem;
 
@@ -102,4 +116,121 @@ All colors MUST be HSL.
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* Lextract Hero Animation Keyframes */
+@keyframes textFloat {
+  0%, 100% { 
+    transform: translateY(0px) translateX(0px); 
+    opacity: 0.3;
+  }
+  25% { 
+    transform: translateY(-10px) translateX(5px); 
+    opacity: 0.5;
+  }
+  50% { 
+    transform: translateY(8px) translateX(-3px); 
+    opacity: 0.4;
+  }
+  75% { 
+    transform: translateY(-5px) translateX(8px); 
+    opacity: 0.6;
+  }
+}
+
+@keyframes textFlicker {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.7; }
+}
+
+@keyframes beamSweep {
+  0% { 
+    transform: translateX(-100%); 
+    opacity: 0;
+  }
+  10% { 
+    opacity: 0.8;
+  }
+  90% { 
+    opacity: 0.8;
+  }
+  100% { 
+    transform: translateX(100vw); 
+    opacity: 0;
+  }
+}
+
+@keyframes textClarify {
+  0% { 
+    filter: blur(2px); 
+    opacity: 0.3;
+    transform: scale(0.95);
+  }
+  100% { 
+    filter: blur(0px); 
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes signalWave {
+  0%, 100% { 
+    transform: scaleX(0); 
+    opacity: 0;
+  }
+  50% { 
+    transform: scaleX(1); 
+    opacity: 1;
+  }
+}
+
+@keyframes messageSlide {
+  0% { 
+    opacity: 0; 
+    transform: translateY(20px);
+  }
+  20%, 80% { 
+    opacity: 1; 
+    transform: translateY(0px);
+  }
+  100% { 
+    opacity: 0; 
+    transform: translateY(-20px);
+  }
+}
+
+/* Lextract Animation Classes */
+.text-noise {
+  filter: blur(2px);
+  opacity: 0.3;
+  animation: textFloat 6s ease-in-out infinite, textFlicker 2s ease-in-out infinite;
+}
+
+.text-signal {
+  filter: blur(0px);
+  opacity: 1;
+  animation: textClarify 1s ease-out forwards;
+}
+
+.beam-sweep {
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    hsl(var(--lextract-teal) / 0.1) 30%,
+    hsl(var(--lextract-electric) / 0.3) 50%,
+    hsl(var(--lextract-teal) / 0.1) 70%,
+    transparent 100%
+  );
+  animation: beamSweep 12s linear infinite;
+}
+
+.signal-wave {
+  background: linear-gradient(90deg, 
+    hsl(var(--lextract-teal)), 
+    hsl(var(--lextract-electric))
+  );
+  animation: signalWave 3s ease-in-out infinite;
+}
+
+.message-fade {
+  animation: messageSlide 4s ease-in-out;
 }
