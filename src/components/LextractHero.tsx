@@ -71,29 +71,46 @@ export const LextractHero = () => {
     
     // Create a grid system to prevent overlapping - reduced density
     const gridCols = 10;
-    const gridRows = 6;
+    const gridRows = 8; // Increased rows to have more options while excluding center
+    
+    // Define exclusion zone for title/subtitle (center area)
+    const excludeZone = {
+      colStart: 2, // Exclude columns 2-7 (center 60% width)
+      colEnd: 7,
+      rowStart: 2, // Exclude rows 2-5 (center area)
+      rowEnd: 5
+    };
     
     // Reduced number of terms by ~40% (from 30 to 18)
     for (let i = 0; i < 18; i++) {
       const text = LEGAL_TERMS[Math.floor(Math.random() * LEGAL_TERMS.length)];
       const isSignal = SIGNAL_TERMS.includes(text);
       
-      // Find an available grid position
+      // Find an available grid position outside exclusion zone
       let gridPos;
       let attempts = 0;
       do {
         const col = Math.floor(Math.random() * gridCols);
         const row = Math.floor(Math.random() * gridRows);
-        gridPos = `${col}-${row}`;
+        
+        // Check if position is in exclusion zone
+        const inExclusionZone = col >= excludeZone.colStart && 
+                               col <= excludeZone.colEnd && 
+                               row >= excludeZone.rowStart && 
+                               row <= excludeZone.rowEnd;
+        
+        if (!inExclusionZone) {
+          gridPos = `${col}-${row}`;
+        }
         attempts++;
-      } while (usedPositions.has(gridPos) && attempts < 50);
+      } while ((!gridPos || usedPositions.has(gridPos)) && attempts < 100);
       
-      if (attempts < 50) {
+      if (attempts < 100 && gridPos) {
         usedPositions.add(gridPos);
         
         const [col, row] = gridPos.split('-').map(Number);
         const x = (col / gridCols) * 85 + 7.5; // 7.5% to 92.5% width
-        const y = (row / gridRows) * 75 + 15; // 15% to 90% height
+        const y = (row / gridRows) * 80 + 10; // 10% to 90% height
         const delay = Math.random() * 4000 + (isSignal ? 3000 : 0);
         
         elements.push(
