@@ -168,11 +168,11 @@ export const LextractHero = () => {
       {/* Main Content */}
       <div className="absolute inset-0 flex flex-col items-center justify-center z-40 px-8">
         <div className="text-center max-w-4xl">
-          <h1 className="text-4xl md:text-6xl lg:text-7xl font-light text-lextract-black mb-6 tracking-tight leading-tight">
+          <h1 className="text-4xl md:text-6xl lg:text-7xl font-light text-lextract-signature-dark mb-6 tracking-tight leading-tight font-roboto">
             Intelligent automation of{' '}
             <span className="text-lextract-signature-dark font-medium">legal due diligence</span>
           </h1>
-          <p className="text-lg md:text-xl text-lextract-text-secondary font-light tracking-wide leading-relaxed max-w-2xl mx-auto">
+          <p className="text-lg md:text-xl text-lextract-signature-dark font-light tracking-wide leading-relaxed max-w-2xl mx-auto font-roboto">
             Streamline complex legal processes with AI-driven precision and ease.
           </p>
         </div>
