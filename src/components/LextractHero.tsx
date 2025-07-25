@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 
 const LEGAL_TERMS = [
   "Force Majeure", "Indemnification", "Liquidated Damages", "Material Adverse Change",
@@ -16,35 +16,57 @@ const SIGNAL_TERMS = ["Change of Control", "Governing Law", "Termination", "AGB"
 interface FloatingTextProps {
   text: string;
   isSignal: boolean;
-  delay: number;
   x: number;
   y: number;
+  animationCycle: number;
 }
 
-const FloatingText = ({ text, isSignal, delay, x, y }: FloatingTextProps) => {
-  const [isTransformed, setIsTransformed] = useState(false);
+const FloatingText = ({ text, isSignal, x, y, animationCycle }: FloatingTextProps) => {
+  const [scannerProgress, setScannerProgress] = useState(0);
   
   useEffect(() => {
-    const timer = setTimeout(() => {
-      if (isSignal) {
-        setIsTransformed(true);
-      }
-    }, delay);
+    const startTime = Date.now();
+    const duration = 8000; // 8 seconds beam sweep
     
-    return () => clearTimeout(timer);
-  }, [isSignal, delay]);
+    const updateProgress = () => {
+      const elapsed = Date.now() - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      setScannerProgress(progress);
+      
+      if (progress < 1) {
+        requestAnimationFrame(updateProgress);
+      }
+    };
+    
+    updateProgress();
+  }, [animationCycle]);
+
+  // Calculate if scanner has passed this text position
+  const scannerX = scannerProgress * 100;
+  const hasBeenScanned = scannerX >= x;
+  const isCurrentlyScanning = scannerX >= x - 5 && scannerX <= x + 5;
+  
+  // Determine text state
+  let textClass = 'text-lextract-noise opacity-60';
+  
+  if (isSignal) {
+    if (isCurrentlyScanning) {
+      textClass = 'text-lextract-electric opacity-100 scale-105 shadow-sm';
+    } else if (hasBeenScanned) {
+      textClass = 'text-lextract-teal opacity-90 scale-102';
+    }
+  } else if (isCurrentlyScanning) {
+    textClass = 'text-lextract-signature-dark opacity-80';
+  }
 
   return (
     <div
-      className={`absolute text-xs font-sans tracking-wider uppercase select-none whitespace-nowrap ${
-        isSignal && isTransformed 
-          ? 'text-signal-glow opacity-100 scale-110 z-20' 
-          : 'text-noise'
-      }`}
+      className={`absolute text-xs md:text-sm font-sans tracking-wider uppercase select-none whitespace-nowrap transition-all duration-300 ease-in-out ${textClass}`}
       style={{
         left: `${x}%`,
         top: `${y}%`,
-        transform: `translate(-50%, -50%)`
+        transform: `translate(-50%, -50%)`,
+        textShadow: isCurrentlyScanning && isSignal ? '0 0 8px hsl(var(--lextract-electric) / 0.4)' : 'none'
       }}
     >
       {text}
@@ -63,69 +85,81 @@ export const LextractHero = () => {
     return () => clearInterval(interval);
   }, []);
 
-  const generateTextElements = () => {
+  // Static text layout that doesn't change
+  const staticTextElements = useMemo(() => {
     const elements = [];
     const usedPositions = new Set();
     
-    // Create a grid system to prevent overlapping - reduced density
-    const gridCols = 10;
-    const gridRows = 8; // Increased rows to have more options while excluding center
+    // Enhanced grid system for better mobile support
+    const gridCols = 12; // More columns for finer control
+    const gridRows = 10; // More rows for better distribution
+    const minDistance = 2; // Minimum grid cell distance between words
     
     // Define exclusion zone for title/subtitle (center area)
     const excludeZone = {
-      colStart: 2, // Exclude columns 2-7 (center 60% width)
-      colEnd: 7,
-      rowStart: 2, // Exclude rows 2-5 (center area)
-      rowEnd: 5
+      colStart: 3, // Exclude columns 3-8 (center 50% width)
+      colEnd: 8,
+      rowStart: 3, // Exclude rows 3-6 (center area)
+      rowEnd: 6
     };
     
-    // Reduced number of terms by ~40% (from 30 to 18)
-    for (let i = 0; i < 18; i++) {
-      const text = LEGAL_TERMS[Math.floor(Math.random() * LEGAL_TERMS.length)];
-      const isSignal = SIGNAL_TERMS.includes(text);
+    // Predefined layout for consistency
+    const termLayouts = [
+      { text: "Force Majeure", col: 1, row: 1 },
+      { text: "Change of Control", col: 10, row: 1, isSignal: true },
+      { text: "Due Diligence", col: 0, row: 3 },
+      { text: "Governing Law", col: 11, row: 3, isSignal: true },
+      { text: "Confidentiality", col: 1, row: 7 },
+      { text: "Termination", col: 9, row: 7, isSignal: true },
+      { text: "Liability Cap", col: 0, row: 8 },
+      { text: "AGB", col: 11, row: 8, isSignal: true },
+      { text: "Arbitration Clause", col: 2, row: 0 },
+      { text: "Shareholder Agreement", col: 8, row: 0, isSignal: true },
+      { text: "Amendment", col: 0, row: 5 },
+      { text: "Jurisdiction", col: 11, row: 5 },
+      { text: "Escrow", col: 2, row: 9 },
+      { text: "Joint Venture", col: 9, row: 9 },
+      { text: "Breach of Contract", col: 1, row: 2 },
+      { text: "Intellectual Property", col: 10, row: 2 }
+    ];
+    
+    termLayouts.forEach((layout, i) => {
+      const { text, col, row, isSignal = false } = layout;
+      const gridPos = `${col}-${row}`;
       
-      // Find an available grid position outside exclusion zone
-      let gridPos;
-      let attempts = 0;
-      do {
-        const col = Math.floor(Math.random() * gridCols);
-        const row = Math.floor(Math.random() * gridRows);
-        
-        // Check if position is in exclusion zone
-        const inExclusionZone = col >= excludeZone.colStart && 
-                               col <= excludeZone.colEnd && 
-                               row >= excludeZone.rowStart && 
-                               row <= excludeZone.rowEnd;
-        
-        if (!inExclusionZone) {
-          gridPos = `${col}-${row}`;
+      // Ensure minimum distance between words
+      let isValidPosition = true;
+      for (const usedPos of usedPositions) {
+        const [usedCol, usedRow] = (usedPos as string).split('-').map(Number);
+        const distance = Math.sqrt(Math.pow(col - usedCol, 2) + Math.pow(row - usedRow, 2));
+        if (distance < minDistance) {
+          isValidPosition = false;
+          break;
         }
-        attempts++;
-      } while ((!gridPos || usedPositions.has(gridPos)) && attempts < 100);
+      }
       
-      if (attempts < 100 && gridPos) {
+      if (isValidPosition) {
         usedPositions.add(gridPos);
         
-        const [col, row] = gridPos.split('-').map(Number);
-        const x = (col / gridCols) * 85 + 7.5; // 7.5% to 92.5% width
-        const y = (row / gridRows) * 80 + 10; // 10% to 90% height
-        const delay = Math.random() * 4000 + (isSignal ? 3000 : 0);
+        // Calculate responsive positioning
+        const x = (col / gridCols) * 90 + 5; // 5% to 95% width with padding
+        const y = (row / gridRows) * 75 + 12.5; // 12.5% to 87.5% height
         
         elements.push(
           <FloatingText
-            key={`${i}-${animationCycle}`}
+            key={`static-${i}`}
             text={text}
             isSignal={isSignal}
-            delay={delay}
             x={x}
             y={y}
+            animationCycle={animationCycle}
           />
         );
       }
-    }
+    });
     
     return elements;
-  };
+  }, []); // Empty dependency array to keep layout static
 
   return (
     <div className="relative w-full h-screen bg-lextract-background overflow-hidden font-sans">
@@ -134,7 +168,7 @@ export const LextractHero = () => {
       
       {/* Floating Legal Text */}
       <div className="absolute inset-0">
-        {generateTextElements()}
+        {staticTextElements}
       </div>
       
       {/* Vertical Beam Sweep (Left to Right) */}
