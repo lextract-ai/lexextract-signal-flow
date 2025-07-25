@@ -72,7 +72,14 @@ export default {
 					teal: 'hsl(var(--lextract-teal))',
 					electric: 'hsl(var(--lextract-electric))',
 					noise: 'hsl(var(--lextract-noise))',
-					signal: 'hsl(var(--lextract-signal))'
+					signal: 'hsl(var(--lextract-signal))',
+					'signature-dark': 'hsl(var(--lextract-signature-dark))',
+					'signature-light': 'hsl(var(--lextract-signature-light))',
+					background: 'hsl(var(--lextract-background))',
+					'text-primary': 'hsl(var(--lextract-text-primary))',
+					'text-secondary': 'hsl(var(--lextract-text-secondary))',
+					black: 'hsl(var(--lextract-black))',
+					white: 'hsl(var(--lextract-white))'
 				}
 			},
 			borderRadius: {
