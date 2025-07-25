@@ -123,6 +123,14 @@ All colors MUST be HSL.
     @apply bg-background text-foreground;
   }
 }
+@keyframes keywordFadeIn {
+  to {
+    opacity: 1;
+    transform: translateY(0px);
+    color: #08eff5;
+  }
+}
+
 
 /* Lextract Hero Animation Keyframes */
 @keyframes textFloat {
