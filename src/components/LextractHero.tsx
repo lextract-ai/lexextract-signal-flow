@@ -22,37 +22,18 @@ interface FloatingTextProps {
 }
 
 const FloatingText = ({ text, isSignal, x, y, animationCycle }: FloatingTextProps) => {
-  const [hasTransitioned, setHasTransitioned] = useState(false);
-  
-  useEffect(() => {
-    // Calculate delay based on x position (left to right)
-    // Words on the left (x=0) start immediately, words on the right (x=100) start after 6 seconds
-    const delay = (x / 100) * 6000;
-    
-    const timer = setTimeout(() => {
-      setHasTransitioned(true);
-    }, delay);
-    
-    return () => clearTimeout(timer);
-  }, [x, animationCycle]);
-
-  // Reset transition when animation cycle changes
-  useEffect(() => {
-    setHasTransitioned(false);
-  }, [animationCycle]);
+  // Calculate animation delay based on x position (left to right)
+  // Words on the left (x=0) start immediately, words on the right (x=100) start after 6 seconds
+  const animationDelay = (x / 100) * 6;
 
   return (
     <div
-      className={`absolute text-xs md:text-sm font-sans tracking-wider uppercase select-none whitespace-nowrap transition-all duration-1000 ease-out ${
-        hasTransitioned && isSignal 
-          ? 'opacity-100' 
-          : 'opacity-60'
-      }`}
+      className={`absolute text-xs md:text-sm font-sans tracking-wider uppercase select-none whitespace-nowrap keyword`}
       style={{
         left: `${x}%`,
         top: `${y}%`,
         transform: `translate(-50%, -50%)`,
-        color: hasTransitioned && isSignal ? '#08EFF5' : '#9CA3AF'
+        animationDelay: `${animationDelay}s`
       }}
     >
       {text}
@@ -148,7 +129,7 @@ export const LextractHero = () => {
   }, [animationCycle]); // Add animationCycle as dependency
 
   return (
-    <div className="relative w-full h-screen bg-lextract-background overflow-hidden font-sans">
+    <div className="relative w-full h-screen bg-lextract-background overflow-hidden font-sans scanner">
       {/* Background Texture */}
       <div className="absolute inset-0 bg-gradient-to-br from-lextract-background via-white to-lextract-background" />
       

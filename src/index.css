@@ -257,3 +257,45 @@ All colors MUST be HSL.
   );
   animation: signalWave 4s ease-in-out infinite;
 }
+
+/* Scanner Background Animation */
+.scanner::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -50%;
+  width: 200%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    rgba(8, 239, 245, 0) 0%,
+    rgba(8, 239, 245, 0.2) 50%,
+    rgba(8, 239, 245, 0) 100%
+  );
+  animation: scannerMove 6s linear infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes scannerMove {
+  0% { left: -50%; }
+  100% { left: 100%; }
+}
+
+/* Keyword Animation */
+.keyword {
+  opacity: 0;
+  color: rgba(80, 100, 120, 0.2);
+  transform: translateY(10px);
+  animation: keywordFadeIn 1s ease-out forwards;
+  position: relative;
+  z-index: 1;
+}
+
+@keyframes keywordFadeIn {
+  to {
+    opacity: 1;
+    color: #08eff5;
+    transform: translateY(0);
+  }
+}
