@@ -1,17 +1,15 @@
 import { useEffect, useState } from "react";
 
 const LEGAL_TERMS = [
-  "Force Majeure", "Indemnification", "Liquidated Damages", "Material Adverse Change",
-  "Change of Control", "Governing Law", "Termination", "AGB", "Shareholder Agreement",
-  "Due Diligence", "Confidentiality", "Non-Disclosure", "Intellectual Property",
-  "Breach of Contract", "Liability Cap", "Arbitration Clause", "Jurisdiction",
-  "Severability", "Amendment", "Waiver", "Counterpart", "Electronic Signature",
-  "Representations", "Warranties", "Covenants", "Conditions Precedent",
-  "Merger", "Acquisition", "Joint Venture", "Partnership Agreement",
-  "Stock Purchase", "Asset Purchase", "Escrow", "Earnout", "Closing Conditions"
+  "Force Majeure", "Indemnification", "Material Adverse Change",
+  "Change of Control", "Governing Law", "Termination", 
+  "Due Diligence", "Confidentiality", "Intellectual Property",
+  "Liability Cap", "Arbitration", "Jurisdiction",
+  "Amendment", "Warranties", "Covenants",
+  "Merger", "Joint Venture", "Escrow"
 ];
 
-const SIGNAL_TERMS = ["Change of Control", "Governing Law", "Termination", "AGB", "Shareholder Agreement"];
+const SIGNAL_TERMS = ["Change of Control", "Governing Law", "Termination"];
 
 interface FloatingTextProps {
   text: string;
@@ -114,68 +112,79 @@ export const LextractHero = () => {
   }, []);
 
   const generateTextElements = () => {
-    // Fixed seed for consistent layout across animation cycles
-    const seed = 12345;
-    let random = seed;
-    const seededRandom = () => {
-      random = (random * 9301 + 49297) % 233280;
-      return random / 233280;
-    };
-
+    // Create a balanced grid-based distribution
     const elements = [];
-    const positions = [];
-    const minDistance = 8; // Minimum distance between keywords (in percentage)
     
-    // Define exclusion zone for title/subtitle (responsive)
-    const excludeZone = {
-      xMin: 15, xMax: 85, // Center 70% horizontally
-      yMin: 25, yMax: 75  // Center 50% vertically
-    };
+    // Responsive exclusion zones based on viewport
+    const isMobile = window.innerWidth < 768;
+    const isTablet = window.innerWidth < 1024;
     
-    // Generate fixed positions using Poisson disk sampling
-    const maxAttempts = 30;
-    const targetCount = 16;
+    let excludeZone, gridConfig;
     
-    for (let i = 0; i < targetCount; i++) {
-      let validPosition = null;
-      let attempts = 0;
-      
-      while (!validPosition && attempts < maxAttempts) {
-        const x = seededRandom() * 90 + 5; // 5% to 95%
-        const y = seededRandom() * 85 + 7.5; // 7.5% to 92.5%
-        
-        // Check if position is in exclusion zone
-        const inExclusionZone = x >= excludeZone.xMin && x <= excludeZone.xMax && 
-                               y >= excludeZone.yMin && y <= excludeZone.yMax;
-        
-        if (!inExclusionZone) {
-          // Check distance from other positions
-          const tooClose = positions.some(pos => {
-            const distance = Math.sqrt(Math.pow(x - pos.x, 2) + Math.pow(y - pos.y, 2));
-            return distance < minDistance;
-          });
-          
-          if (!tooClose) {
-            validPosition = { x, y };
-          }
-        }
-        attempts++;
-      }
-      
-      if (validPosition) {
-        positions.push(validPosition);
-      }
+    if (isMobile) {
+      excludeZone = { xMin: 10, xMax: 90, yMin: 20, yMax: 80 };
+      gridConfig = { rows: 3, cols: 2, targetCount: 6 };
+    } else if (isTablet) {
+      excludeZone = { xMin: 15, xMax: 85, yMin: 25, yMax: 75 };
+      gridConfig = { rows: 3, cols: 3, targetCount: 8 };
+    } else {
+      excludeZone = { xMin: 20, xMax: 80, yMin: 30, yMax: 70 };
+      gridConfig = { rows: 3, cols: 4, targetCount: 10 };
     }
     
-    // Assign terms to fixed positions
+    // Create strategic zones around the exclusion area
+    const zones = [
+      // Top area
+      { xMin: 10, xMax: 90, yMin: 5, yMax: excludeZone.yMin - 5 },
+      // Bottom area  
+      { xMin: 10, xMax: 90, yMin: excludeZone.yMax + 5, yMax: 95 },
+      // Left side
+      { xMin: 5, xMax: excludeZone.xMin - 5, yMin: 15, yMax: 85 },
+      // Right side
+      { xMin: excludeZone.xMax + 5, xMax: 95, yMin: 15, yMax: 85 }
+    ];
+    
+    // Distribute keywords strategically across zones
+    const positions = [];
+    let termIndex = 0;
+    
+    zones.forEach((zone, zoneIndex) => {
+      const keywordsPerZone = Math.ceil(gridConfig.targetCount / zones.length);
+      const zoneWidth = zone.xMax - zone.xMin;
+      const zoneHeight = zone.yMax - zone.yMin;
+      
+      for (let i = 0; i < keywordsPerZone && termIndex < gridConfig.targetCount; i++) {
+        // Create balanced distribution within each zone
+        const xStep = zoneWidth / (keywordsPerZone + 1);
+        const yStep = zoneHeight / 2;
+        
+        const x = zone.xMin + xStep * (i + 1) + (Math.random() - 0.5) * 10;
+        const y = zone.yMin + yStep * (i % 2 + 1) + (Math.random() - 0.5) * 8;
+        
+        // Ensure position is within bounds and not too close to others
+        const clampedX = Math.max(5, Math.min(95, x));
+        const clampedY = Math.max(8, Math.min(92, y));
+        
+        const validPosition = positions.every(pos => {
+          const distance = Math.sqrt(Math.pow(clampedX - pos.x, 2) + Math.pow(clampedY - pos.y, 2));
+          return distance >= (isMobile ? 15 : 12);
+        });
+        
+        if (validPosition) {
+          positions.push({ x: clampedX, y: clampedY });
+          termIndex++;
+        }
+      }
+    });
+    
+    // Create elements from positions
     positions.forEach((pos, i) => {
-      const termIndex = i % LEGAL_TERMS.length;
-      const text = LEGAL_TERMS[termIndex];
+      const text = LEGAL_TERMS[i % LEGAL_TERMS.length];
       const isSignal = SIGNAL_TERMS.includes(text);
       
       elements.push(
         <FloatingText
-          key={`${text}-${pos.x}-${pos.y}`}
+          key={`${text}-${pos.x}-${pos.y}-${i}`}
           text={text}
           isSignal={isSignal}
           x={pos.x}
