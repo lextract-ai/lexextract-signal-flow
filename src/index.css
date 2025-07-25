@@ -285,7 +285,7 @@ All colors MUST be HSL.
 /* Keyword Animation */
 .keyword {
   color: rgba(156, 163, 175, 0.6);
-  animation: keywordColorSync 6s linear infinite;
+const animationDelay = (x / 100) * 6; // syncs with scanner duration
   position: relative;
   z-index: 1;
 }
