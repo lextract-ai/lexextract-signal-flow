@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState } from "react";
 
 const LEGAL_TERMS = [
   "Force Majeure", "Indemnification", "Liquidated Damages", "Material Adverse Change",
@@ -16,23 +16,35 @@ const SIGNAL_TERMS = ["Change of Control", "Governing Law", "Termination", "AGB"
 interface FloatingTextProps {
   text: string;
   isSignal: boolean;
+  delay: number;
   x: number;
   y: number;
-  animationCycle: number;
 }
 
-const FloatingText = ({ text, isSignal, x, y, animationCycle }: FloatingTextProps) => {
-  // Calculate animation delay based on x position to sync with scanner
-  const animationDelay = (x / 100) * 6;
+const FloatingText = ({ text, isSignal, delay, x, y }: FloatingTextProps) => {
+  const [isTransformed, setIsTransformed] = useState(false);
+  
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (isSignal) {
+        setIsTransformed(true);
+      }
+    }, delay);
+    
+    return () => clearTimeout(timer);
+  }, [isSignal, delay]);
 
   return (
     <div
-      className={`absolute text-xs md:text-sm font-sans tracking-wider uppercase select-none whitespace-nowrap keyword`}
+      className={`absolute text-xs font-sans tracking-wider uppercase select-none whitespace-nowrap ${
+        isSignal && isTransformed 
+          ? 'text-signal-glow opacity-100 scale-110 z-20' 
+          : 'text-noise'
+      }`}
       style={{
         left: `${x}%`,
         top: `${y}%`,
-        transform: `translate(-50%, -50%)`,
-        animationDelay: `${animationDelay}s`
+        transform: `translate(-50%, -50%)`
       }}
     >
       {text}
@@ -51,124 +63,78 @@ export const LextractHero = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // Static text layout that doesn't change
-  const staticTextElements = useMemo(() => {
+  const generateTextElements = () => {
     const elements = [];
-
-  const jitter = () => Math.random() * 4 - 2; // -2% to +2%
+    const usedPositions = new Set();
     
-    // Better distributed layouts matching the screenshot
-    const mobileLayout = [
-      { text: "Force Majeure", x: 8, y: 20 },
-      { text: "Change of Control", x: 92, y: 25},
-      { text: "Due Diligence", x: 5, y: 75 },
-      { text: "Governing Law", x: 95, y: 80, isSignal: true },
-      { text: "Termination", x: 88, y: 65, isSignal: true },
-      { text: "AGB", x: 92, y: 90, isSignal: true }
-    ];
+    // Create a grid system to prevent overlapping - reduced density
+    const gridCols = 10;
+    const gridRows = 8; // Increased rows to have more options while excluding center
     
-    const tabletLayout = [
-      { text: "Force Majeure", x: 8, y: 18 },
-      { text: "Shareholder Agreement", x: 78, y: 8, isSignal: true },
-      { text: "Change of Control", x: 92, y: 22, isSignal: true },
-      { text: "Due Diligence", x: 5, y: 40 },
-      { text: "Governing Law", x: 95, y: 45, isSignal: true },
-      { text: "Amendment", x: 8, y: 55 },
-      { text: "Jurisdiction", x: 92, y: 58 },
-      { text: "Confidentiality", x: 5, y: 72 },
-      { text: "Termination", x: 88, y: 75, isSignal: true },
-      { text: "AGB", x: 92, y: 88, isSignal: true },
-      { text: "Escrow", x: 12, y: 92 },
-      { text: "Joint Venture", x: 78, y: 92 }
-    ];
+    // Define exclusion zone for title/subtitle (center area)
+    const excludeZone = {
+      colStart: 2, // Exclude columns 2-7 (center 60% width)
+      colEnd: 7,
+      rowStart: 2, // Exclude rows 2-5 (center area)
+      rowEnd: 5
+    };
     
-    const desktopLayout = [
-      { text: "Force Majeure", x: 8 + jitter(), y: 15 + jitter() },
-      { text: "Shareholder Agreement", x: 75 + jitter(), y: 5 + jitter()},
-      { text: "Change of Control", x: 92 + jitter(), y: 18 + jitter()},
-      { text: "Due Diligence", x: 5, y: 35 },
-      { text: "Governing Law", x: 95 + jitter(), y: 38 + jitter()},
-      { text: "Amendment", x: 8 + jitter(), y: 50 + jitter() },
-      { text: "Jurisdiction", x: 92 + jitter(), y: 52 + jitter() },
-      { text: "Confidentiality", x: 5 + jitter(), y: 65 + jitter() },
-      { text: "Termination", x: 88 + jitter(), y: 68  + jitter() },
-      { text: "Liability Cap", x: 12 + jitter(), y: 82 + jitter() },
-      { text: "AGB", x: 92 + jitter(), y: 85  + jitter() },
-      { text: "Escrow", x: 15 + jitter(), y: 92 + jitter() },
-      { text: "Joint Venture", x: 75 + jitter(), y: 92 + jitter() },
-      { text: "Arbitration Clause", x: 25 + jitter(), y: 8 + jitter() },
-      { text: "Breach of Contract", x: 18 + jitter(), y: 28  + jitter()},
-      { text: "Intellectual Property", x: 82 + jitter(), y: 32  + jitter()},
-      { text: "Material Adverse Change", x: 28 + jitter(), y: 88  + jitter()},
-      { text: "Indemnification", x: 72 + jitter(), y: 12 + jitter() }
-    ];
-    
-    // Mobile keywords (always visible)
-    mobileLayout.forEach((layout, i) => {
-      const { text, x, y, isSignal = false } = layout;
-      elements.push(
-        <FloatingText
-          key={`mobile-${i}`}
-          text={text}
-          isSignal={isSignal}
-          x={x}
-          y={y}
-          animationCycle={animationCycle}
-        />
-      );
-    });
-    
-    // Additional tablet keywords (hidden on mobile)
-    const tabletOnlyKeywords = tabletLayout.filter(item => 
-      !mobileLayout.some(mobile => mobile.text === item.text)
-    );
-    
-    tabletOnlyKeywords.forEach((layout, i) => {
-      const { text, x, y, isSignal = false } = layout;
-      elements.push(
-        <div key={`tablet-${i}`} className="hidden md:block">
+    // Reduced number of terms by ~40% (from 30 to 18)
+    for (let i = 0; i < 18; i++) {
+      const text = LEGAL_TERMS[Math.floor(Math.random() * LEGAL_TERMS.length)];
+      const isSignal = SIGNAL_TERMS.includes(text);
+      
+      // Find an available grid position outside exclusion zone
+      let gridPos;
+      let attempts = 0;
+      do {
+        const col = Math.floor(Math.random() * gridCols);
+        const row = Math.floor(Math.random() * gridRows);
+        
+        // Check if position is in exclusion zone
+        const inExclusionZone = col >= excludeZone.colStart && 
+                               col <= excludeZone.colEnd && 
+                               row >= excludeZone.rowStart && 
+                               row <= excludeZone.rowEnd;
+        
+        if (!inExclusionZone) {
+          gridPos = `${col}-${row}`;
+        }
+        attempts++;
+      } while ((!gridPos || usedPositions.has(gridPos)) && attempts < 100);
+      
+      if (attempts < 100 && gridPos) {
+        usedPositions.add(gridPos);
+        
+        const [col, row] = gridPos.split('-').map(Number);
+        const x = (col / gridCols) * 85 + 7.5; // 7.5% to 92.5% width
+        const y = (row / gridRows) * 80 + 10; // 10% to 90% height
+        const delay = Math.random() * 4000 + (isSignal ? 3000 : 0);
+        
+        elements.push(
           <FloatingText
+            key={`${i}-${animationCycle}`}
             text={text}
             isSignal={isSignal}
+            delay={delay}
             x={x}
             y={y}
-            animationCycle={animationCycle}
           />
-        </div>
-      );
-    });
-    
-    // Additional desktop keywords (hidden on mobile and tablet)
-    const desktopOnlyKeywords = desktopLayout.filter(item => 
-      !tabletLayout.some(tablet => tablet.text === item.text)
-    );
-    
-    desktopOnlyKeywords.forEach((layout, i) => {
-      const { text, x, y, isSignal = false } = layout;
-      elements.push(
-        <div key={`desktop-${i}`} className="hidden lg:block">
-          <FloatingText
-            text={text}
-            isSignal={isSignal}
-            x={x}
-            y={y}
-            animationCycle={animationCycle}
-          />
-        </div>
-      );
-    });
+        );
+      }
+    }
     
     return elements;
-  }, [animationCycle]);
+  };
 
   return (
-    <div className="relative w-full h-screen bg-lextract-background overflow-hidden font-sans scanner">
+    <div className="relative w-full h-screen bg-lextract-background overflow-hidden font-sans">
       {/* Background Texture */}
       <div className="absolute inset-0 bg-gradient-to-br from-lextract-background via-white to-lextract-background" />
       
       {/* Floating Legal Text */}
       <div className="absolute inset-0">
-        {staticTextElements}
+        {generateTextElements()}
       </div>
       
       {/* Vertical Beam Sweep (Left to Right) */}
@@ -202,11 +168,11 @@ export const LextractHero = () => {
       {/* Main Content */}
       <div className="absolute inset-0 flex flex-col items-center justify-center z-40 px-8">
         <div className="text-center max-w-4xl">
-          <h1 className="text-4xl md:text-6xl lg:text-7xl font-light text-lextract-signature-dark mb-6 tracking-tight leading-tight font-roboto">
+          <h1 className="text-4xl md:text-6xl lg:text-7xl font-light text-lextract-black mb-6 tracking-tight leading-tight">
             Intelligent automation of{' '}
             <span className="text-lextract-signature-dark font-medium">legal due diligence</span>
           </h1>
-          <p className="text-lg md:text-xl text-lextract-signature-dark font-light tracking-wide leading-relaxed max-w-2xl mx-auto font-roboto">
+          <p className="text-lg md:text-xl text-lextract-text-secondary font-light tracking-wide leading-relaxed max-w-2xl mx-auto">
             Streamline complex legal processes with AI-driven precision and ease.
           </p>
         </div>

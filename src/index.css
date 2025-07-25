@@ -123,14 +123,6 @@ All colors MUST be HSL.
     @apply bg-background text-foreground;
   }
 }
-@keyframes keywordFadeIn {
-  to {
-    opacity: 1;
-    transform: translateY(0px);
-    color: #08eff5;
-  }
-}
-
 
 /* Lextract Hero Animation Keyframes */
 @keyframes textFloat {
@@ -264,52 +256,4 @@ All colors MUST be HSL.
     hsl(var(--lextract-signature-light))
   );
   animation: signalWave 4s ease-in-out infinite;
-}
-
-/* Scanner Background Animation */
-.scanner::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: -50%;
-  width: 200%;
-  height: 100%;
-  background: linear-gradient(
-    90deg,
-    rgba(8, 239, 245, 0) 0%,
-    rgba(8, 239, 245, 0.1) 25%,
-    rgba(8, 239, 245, 0.25) 50%,
-    rgba(8, 239, 245, 0.1) 75%,
-    rgba(8, 239, 245, 0) 100%
-  );
-  filter: blur(8px);
-  animation: scannerMove 6s ease-in-out infinite;
-  pointer-events: none;
-  z-index: 0;
-}
-
-
-@keyframes scannerMove {
-  0% { left: -50%; }
-  100% { left: 100%; }
-}
-
-/* Keyword Animation */
-.keyword {
-  color: rgba(156, 163, 175, 0.2); /* start as very faint gray */
-  opacity: 0;
-  transform: translateY(8px);
-  animation: keywordFadeIn 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-  position: relative;
-  z-index: 1;
-}
-
-
-@keyframes keywordColorSync {
-  0%, 100% { 
-    color: rgba(156, 163, 175, 0.6);
-  }
-  50% { 
-    color: #08eff5;
-  }
 }
