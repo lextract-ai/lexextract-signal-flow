@@ -54,11 +54,13 @@ export const LextractHero = () => {
   // Static text layout that doesn't change
   const staticTextElements = useMemo(() => {
     const elements = [];
+
+  const jitter = () => Math.random() * 4 - 2; // -2% to +2%
     
     // Better distributed layouts matching the screenshot
     const mobileLayout = [
       { text: "Force Majeure", x: 8, y: 20 },
-      { text: "Change of Control", x: 92, y: 25, isSignal: true },
+      { text: "Change of Control", x: 92, y: 25},
       { text: "Due Diligence", x: 5, y: 75 },
       { text: "Governing Law", x: 95, y: 80, isSignal: true },
       { text: "Termination", x: 88, y: 65, isSignal: true },
@@ -81,24 +83,24 @@ export const LextractHero = () => {
     ];
     
     const desktopLayout = [
-      { text: "Force Majeure", x: 8, y: 15 },
-      { text: "Shareholder Agreement", x: 75, y: 5, isSignal: true },
-      { text: "Change of Control", x: 92, y: 18, isSignal: true },
+      { text: "Force Majeure", x: 8 + jitter(), y: 15 + jitter() },
+      { text: "Shareholder Agreement", x: 75 + jitter(), y: 5 + jitter()},
+      { text: "Change of Control", x: 92 + jitter(), y: 18 + jitter()},
       { text: "Due Diligence", x: 5, y: 35 },
-      { text: "Governing Law", x: 95, y: 38, isSignal: true },
-      { text: "Amendment", x: 8, y: 50 },
-      { text: "Jurisdiction", x: 92, y: 52 },
-      { text: "Confidentiality", x: 5, y: 65 },
-      { text: "Termination", x: 88, y: 68, isSignal: true },
-      { text: "Liability Cap", x: 12, y: 82 },
-      { text: "AGB", x: 92, y: 85, isSignal: true },
-      { text: "Escrow", x: 15, y: 92 },
-      { text: "Joint Venture", x: 75, y: 92 },
-      { text: "Arbitration Clause", x: 25, y: 8 },
-      { text: "Breach of Contract", x: 18, y: 28 },
-      { text: "Intellectual Property", x: 82, y: 32 },
-      { text: "Material Adverse Change", x: 28, y: 88 },
-      { text: "Indemnification", x: 72, y: 12 }
+      { text: "Governing Law", x: 95 + jitter(), y: 38 + jitter()},
+      { text: "Amendment", x: 8 + jitter(), y: 50 + jitter() },
+      { text: "Jurisdiction", x: 92 + jitter(), y: 52 + jitter() },
+      { text: "Confidentiality", x: 5 + jitter(), y: 65 + jitter() },
+      { text: "Termination", x: 88 + jitter(), y: 68  + jitter() },
+      { text: "Liability Cap", x: 12 + jitter(), y: 82 + jitter() },
+      { text: "AGB", x: 92 + jitter(), y: 85  + jitter() },
+      { text: "Escrow", x: 15 + jitter(), y: 92 + jitter() },
+      { text: "Joint Venture", x: 75 + jitter(), y: 92 + jitter() },
+      { text: "Arbitration Clause", x: 25 + jitter(), y: 8 + jitter() },
+      { text: "Breach of Contract", x: 18 + jitter(), y: 28  + jitter()},
+      { text: "Intellectual Property", x: 82 + jitter(), y: 32  + jitter()},
+      { text: "Material Adverse Change", x: 28 + jitter(), y: 88  + jitter()},
+      { text: "Indemnification", x: 72 + jitter(), y: 12 + jitter() }
     ];
     
     // Mobile keywords (always visible)
