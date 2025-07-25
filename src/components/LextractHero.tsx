@@ -44,8 +44,7 @@ const FloatingText = ({ text, isSignal, delay, x, y }: FloatingTextProps) => {
       style={{
         left: `${x}%`,
         top: `${y}%`,
-        transform: `translate(-50%, -50%)`,
-        textShadow: isSignal && isTransformed ? '0 0 8px hsl(var(--lextract-signature-light) / 0.6)' : 'none'
+        transform: `translate(-50%, -50%)`
       }}
     >
       {text}
@@ -170,11 +169,11 @@ export const LextractHero = () => {
       <div className="absolute inset-0 flex flex-col items-center justify-center z-40 px-8">
         <div className="text-center max-w-4xl">
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-light text-lextract-black mb-6 tracking-tight leading-tight">
-            We build AI that{' '}
-            <span className="text-lextract-signature-dark font-medium">speaks legal</span>
+            Intelligent automation of{' '}
+            <span className="text-lextract-signature-dark font-medium">legal due diligence</span>
           </h1>
           <p className="text-lg md:text-xl text-lextract-text-secondary font-light tracking-wide leading-relaxed max-w-2xl mx-auto">
-            Lextract helps deal lawyers cut through complexity with explainable, precision AI.
+            Streamline complex legal processes with AI-driven precision and ease.
           </p>
         </div>
       </div>

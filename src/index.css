@@ -236,7 +236,7 @@ All colors MUST be HSL.
   filter: none;
   opacity: 1;
   color: hsl(var(--lextract-signal));
-  animation: textClarify 1.5s ease-out forwards, textPulse 4s ease-in-out infinite;
+  transition: color 1.5s ease-out;
 }
 
 .vertical-beam-sweep {
