@@ -22,8 +22,7 @@ interface FloatingTextProps {
 }
 
 const FloatingText = ({ text, isSignal, x, y, animationCycle }: FloatingTextProps) => {
-  // Calculate animation delay based on x position (left to right)
-  // Words on the left (x=0) start immediately, words on the right (x=100) start after 6 seconds
+  // Calculate animation delay based on x position to sync with scanner
   const animationDelay = (x / 100) * 6;
 
   return (
