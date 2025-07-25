@@ -4,7 +4,7 @@ const LEGAL_TERMS = [
   "Force Majeure", "Indemnification", "Liquidated Damages", "Material Adverse Change",
   "Change of Control", "Governing Law", "Termination", "AGB", "Shareholder Agreement",
   "Due Diligence", "Confidentiality", "Non-Disclosure", "Intellectual Property",
-  "Breach of Contract", "Liability Cap", "Arbitration Clause", "Jurisdiction",
+  "Breach of Contract", "Liability Cap", "Jurisdiction",
   "Severability", "Amendment", "Waiver", "Counterpart", "Electronic Signature",
   "Representations", "Warranties", "Covenants", "Conditions Precedent",
   "Merger", "Acquisition", "Joint Venture", "Partnership Agreement",
