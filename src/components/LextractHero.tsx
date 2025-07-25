@@ -55,38 +55,50 @@ export const LextractHero = () => {
   const staticTextElements = useMemo(() => {
     const elements = [];
     
-    // Cleaner, more spaced out layouts
+    // Better distributed layouts matching the screenshot
     const mobileLayout = [
-      { text: "Force Majeure", x: 15, y: 15 },
-      { text: "Change of Control", x: 85, y: 20, isSignal: true },
-      { text: "Due Diligence", x: 10, y: 80 },
-      { text: "Governing Law", x: 90, y: 85, isSignal: true }
+      { text: "Force Majeure", x: 8, y: 20 },
+      { text: "Change of Control", x: 92, y: 25, isSignal: true },
+      { text: "Due Diligence", x: 5, y: 75 },
+      { text: "Governing Law", x: 95, y: 80, isSignal: true },
+      { text: "Termination", x: 88, y: 65, isSignal: true },
+      { text: "AGB", x: 92, y: 90, isSignal: true }
     ];
     
     const tabletLayout = [
-      { text: "Force Majeure", x: 12, y: 12 },
-      { text: "Change of Control", x: 88, y: 15, isSignal: true },
-      { text: "Due Diligence", x: 8, y: 35 },
-      { text: "Governing Law", x: 92, y: 40, isSignal: true },
-      { text: "Termination", x: 85, y: 75, isSignal: true },
-      { text: "AGB", x: 15, y: 85, isSignal: true },
-      { text: "Amendment", x: 20, y: 25 },
-      { text: "Jurisdiction", x: 80, y: 90 }
+      { text: "Force Majeure", x: 8, y: 18 },
+      { text: "Shareholder Agreement", x: 78, y: 8, isSignal: true },
+      { text: "Change of Control", x: 92, y: 22, isSignal: true },
+      { text: "Due Diligence", x: 5, y: 40 },
+      { text: "Governing Law", x: 95, y: 45, isSignal: true },
+      { text: "Amendment", x: 8, y: 55 },
+      { text: "Jurisdiction", x: 92, y: 58 },
+      { text: "Confidentiality", x: 5, y: 72 },
+      { text: "Termination", x: 88, y: 75, isSignal: true },
+      { text: "AGB", x: 92, y: 88, isSignal: true },
+      { text: "Escrow", x: 12, y: 92 },
+      { text: "Joint Venture", x: 78, y: 92 }
     ];
     
     const desktopLayout = [
-      { text: "Force Majeure", x: 8, y: 10 },
-      { text: "Change of Control", x: 92, y: 12, isSignal: true },
-      { text: "Due Diligence", x: 5, y: 30 },
-      { text: "Governing Law", x: 95, y: 35, isSignal: true },
-      { text: "Confidentiality", x: 12, y: 65 },
-      { text: "Termination", x: 88, y: 70, isSignal: true },
-      { text: "Liability Cap", x: 10, y: 85 },
-      { text: "AGB", x: 90, y: 88, isSignal: true },
-      { text: "Shareholder Agreement", x: 70, y: 8, isSignal: true },
-      { text: "Amendment", x: 25, y: 20 },
-      { text: "Jurisdiction", x: 75, y: 92 },
-      { text: "Joint Venture", x: 30, y: 90 }
+      { text: "Force Majeure", x: 8, y: 15 },
+      { text: "Shareholder Agreement", x: 75, y: 5, isSignal: true },
+      { text: "Change of Control", x: 92, y: 18, isSignal: true },
+      { text: "Due Diligence", x: 5, y: 35 },
+      { text: "Governing Law", x: 95, y: 38, isSignal: true },
+      { text: "Amendment", x: 8, y: 50 },
+      { text: "Jurisdiction", x: 92, y: 52 },
+      { text: "Confidentiality", x: 5, y: 65 },
+      { text: "Termination", x: 88, y: 68, isSignal: true },
+      { text: "Liability Cap", x: 12, y: 82 },
+      { text: "AGB", x: 92, y: 85, isSignal: true },
+      { text: "Escrow", x: 15, y: 92 },
+      { text: "Joint Venture", x: 75, y: 92 },
+      { text: "Arbitration Clause", x: 25, y: 8 },
+      { text: "Breach of Contract", x: 18, y: 28 },
+      { text: "Intellectual Property", x: 82, y: 32 },
+      { text: "Material Adverse Change", x: 28, y: 88 },
+      { text: "Indemnification", x: 72, y: 12 }
     ];
     
     // Mobile keywords (always visible)
