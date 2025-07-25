@@ -54,78 +54,109 @@ export const LextractHero = () => {
   // Static text layout that doesn't change
   const staticTextElements = useMemo(() => {
     const elements = [];
-    const usedPositions = new Set();
     
-    // Enhanced grid system for better mobile support
-    const gridCols = 12; // More columns for finer control
-    const gridRows = 10; // More rows for better distribution
-    const minDistance = 2; // Minimum grid cell distance between words
-    
-    // Define exclusion zone for title/subtitle (center area)
-    const excludeZone = {
-      colStart: 3, // Exclude columns 3-8 (center 50% width)
-      colEnd: 8,
-      rowStart: 3, // Exclude rows 3-6 (center area)
-      rowEnd: 6
-    };
-    
-    // Predefined layout for consistency
-    const termLayouts = [
-      { text: "Force Majeure", col: 1, row: 1 },
-      { text: "Change of Control", col: 10, row: 1, isSignal: true },
-      { text: "Due Diligence", col: 0, row: 3 },
-      { text: "Governing Law", col: 11, row: 3, isSignal: true },
-      { text: "Confidentiality", col: 1, row: 7 },
-      { text: "Termination", col: 9, row: 7, isSignal: true },
-      { text: "Liability Cap", col: 0, row: 8 },
-      { text: "AGB", col: 11, row: 8, isSignal: true },
-      { text: "Arbitration Clause", col: 2, row: 0 },
-      { text: "Shareholder Agreement", col: 8, row: 0, isSignal: true },
-      { text: "Amendment", col: 0, row: 5 },
-      { text: "Jurisdiction", col: 11, row: 5 },
-      { text: "Escrow", col: 2, row: 9 },
-      { text: "Joint Venture", col: 9, row: 9 },
-      { text: "Breach of Contract", col: 1, row: 2 },
-      { text: "Intellectual Property", col: 10, row: 2 }
+    // Responsive keyword layouts - fewer keywords on smaller screens
+    const mobileLayout = [
+      { text: "Force Majeure", x: 15, y: 20 },
+      { text: "Change of Control", x: 85, y: 25, isSignal: true },
+      { text: "Due Diligence", x: 10, y: 75 },
+      { text: "Governing Law", x: 90, y: 80, isSignal: true },
+      { text: "Termination", x: 20, y: 85, isSignal: true },
+      { text: "AGB", x: 80, y: 15, isSignal: true }
     ];
     
-    termLayouts.forEach((layout, i) => {
-      const { text, col, row, isSignal = false } = layout;
-      const gridPos = `${col}-${row}`;
-      
-      // Ensure minimum distance between words
-      let isValidPosition = true;
-      for (const usedPos of usedPositions) {
-        const [usedCol, usedRow] = (usedPos as string).split('-').map(Number);
-        const distance = Math.sqrt(Math.pow(col - usedCol, 2) + Math.pow(row - usedRow, 2));
-        if (distance < minDistance) {
-          isValidPosition = false;
-          break;
-        }
-      }
-      
-      if (isValidPosition) {
-        usedPositions.add(gridPos);
-        
-        // Calculate responsive positioning
-        const x = (col / gridCols) * 90 + 5; // 5% to 95% width with padding
-        const y = (row / gridRows) * 75 + 12.5; // 12.5% to 87.5% height
-        
-        elements.push(
+    const tabletLayout = [
+      { text: "Force Majeure", x: 12, y: 18 },
+      { text: "Change of Control", x: 88, y: 22, isSignal: true },
+      { text: "Due Diligence", x: 8, y: 35 },
+      { text: "Governing Law", x: 92, y: 38, isSignal: true },
+      { text: "Confidentiality", x: 15, y: 75 },
+      { text: "Termination", x: 85, y: 78, isSignal: true },
+      { text: "Liability Cap", x: 10, y: 85 },
+      { text: "AGB", x: 90, y: 15, isSignal: true },
+      { text: "Shareholder Agreement", x: 75, y: 12, isSignal: true },
+      { text: "Amendment", x: 25, y: 88 }
+    ];
+    
+    const desktopLayout = [
+      { text: "Force Majeure", x: 10, y: 15 },
+      { text: "Change of Control", x: 90, y: 18, isSignal: true },
+      { text: "Due Diligence", x: 5, y: 32 },
+      { text: "Governing Law", x: 95, y: 35, isSignal: true },
+      { text: "Confidentiality", x: 12, y: 72 },
+      { text: "Termination", x: 88, y: 75, isSignal: true },
+      { text: "Liability Cap", x: 8, y: 82 },
+      { text: "AGB", x: 92, y: 12, isSignal: true },
+      { text: "Arbitration Clause", x: 25, y: 8 },
+      { text: "Shareholder Agreement", x: 75, y: 10, isSignal: true },
+      { text: "Amendment", x: 15, y: 88 },
+      { text: "Jurisdiction", x: 85, y: 85 },
+      { text: "Escrow", x: 20, y: 92 },
+      { text: "Joint Venture", x: 80, y: 90 },
+      { text: "Breach of Contract", x: 18, y: 25 },
+      { text: "Intellectual Property", x: 82, y: 28 }
+    ];
+    
+    // Choose layout based on screen size (we'll use CSS classes to show/hide)
+    // For now, we'll create all layouts and use responsive classes
+    
+    // Mobile keywords (always visible)
+    mobileLayout.forEach((layout, i) => {
+      const { text, x, y, isSignal = false } = layout;
+      elements.push(
+        <FloatingText
+          key={`mobile-${i}`}
+          text={text}
+          isSignal={isSignal}
+          x={x}
+          y={y}
+          animationCycle={animationCycle}
+        />
+      );
+    });
+    
+    // Additional tablet keywords (hidden on mobile)
+    const tabletOnlyKeywords = tabletLayout.filter(item => 
+      !mobileLayout.some(mobile => mobile.text === item.text)
+    );
+    
+    tabletOnlyKeywords.forEach((layout, i) => {
+      const { text, x, y, isSignal = false } = layout;
+      elements.push(
+        <div key={`tablet-${i}`} className="hidden md:block">
           <FloatingText
-            key={`static-${i}`}
             text={text}
             isSignal={isSignal}
             x={x}
             y={y}
             animationCycle={animationCycle}
           />
-        );
-      }
+        </div>
+      );
+    });
+    
+    // Additional desktop keywords (hidden on mobile and tablet)
+    const desktopOnlyKeywords = desktopLayout.filter(item => 
+      !tabletLayout.some(tablet => tablet.text === item.text)
+    );
+    
+    desktopOnlyKeywords.forEach((layout, i) => {
+      const { text, x, y, isSignal = false } = layout;
+      elements.push(
+        <div key={`desktop-${i}`} className="hidden lg:block">
+          <FloatingText
+            text={text}
+            isSignal={isSignal}
+            x={x}
+            y={y}
+            animationCycle={animationCycle}
+          />
+        </div>
+      );
     });
     
     return elements;
-  }, [animationCycle]); // Add animationCycle as dependency
+  }, [animationCycle]);
 
   return (
     <div className="relative w-full h-screen bg-lextract-background overflow-hidden font-sans scanner">
