@@ -242,9 +242,9 @@ All colors MUST be HSL.
 .vertical-beam-sweep {
   background: linear-gradient(90deg, 
     transparent 0%, 
-    hsl(var(--lextract-signature-dark) / 0.08) 20%,
-    hsl(var(--lextract-signature-light) / 0.15) 50%,
-    hsl(var(--lextract-signature-dark) / 0.08) 80%,
+    hsl(var(--lextract-signature-dark) / 0.15) 20%,
+    hsl(var(--lextract-signature-light) / 0.25) 50%,
+    hsl(var(--lextract-signature-dark) / 0.15) 80%,
     transparent 100%
   );
   animation: verticalBeamSweep 8s linear infinite;

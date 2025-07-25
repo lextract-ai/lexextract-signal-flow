@@ -25,21 +25,25 @@ const FloatingText = ({ text, isSignal, delay, x, y }: FloatingTextProps) => {
   const [isTransformed, setIsTransformed] = useState(false);
   
   useEffect(() => {
+    // Calculate scanner sync delay based on horizontal position
+    // Scanner takes 8 seconds and starts from -100%, reaches x% at (x + 100) / 200 * 8 seconds
+    const scannerDelay = ((x + 100) / 200) * 8000;
+    
     const timer = setTimeout(() => {
       if (isSignal) {
         setIsTransformed(true);
       }
-    }, delay);
+    }, scannerDelay);
     
     return () => clearTimeout(timer);
-  }, [isSignal, delay]);
+  }, [isSignal, x]);
 
   return (
     <div
-      className={`absolute text-xs font-sans tracking-wider uppercase select-none whitespace-nowrap ${
+      className={`absolute text-xs font-sans tracking-wider uppercase select-none whitespace-nowrap transition-all duration-1000 ease-out ${
         isSignal && isTransformed 
-          ? 'text-signal-glow opacity-100 scale-110 z-20' 
-          : 'text-noise'
+          ? 'text-lextract-signature-light opacity-100 z-20' 
+          : 'text-gray-400 opacity-60'
       }`}
       style={{
         left: `${x}%`,
@@ -63,65 +67,75 @@ export const LextractHero = () => {
     return () => clearInterval(interval);
   }, []);
 
+  // Generate distributed positions using Mitchell's best-candidate algorithm
+  const generateDistributedPositions = (count: number, minDistance: number) => {
+    const positions = [];
+    const centerExclusion = { x: 50, y: 50, width: 40, height: 30 }; // Center exclusion zone
+    
+    for (let i = 0; i < count; i++) {
+      let bestCandidate = null;
+      let bestDistance = 0;
+      
+      // Generate multiple candidates and pick the one furthest from existing points
+      for (let j = 0; j < 30; j++) {
+        const candidate = {
+          x: Math.random() * 100,
+          y: Math.random() * 100
+        };
+        
+        // Skip if in center exclusion zone
+        if (candidate.x > centerExclusion.x - centerExclusion.width/2 && 
+            candidate.x < centerExclusion.x + centerExclusion.width/2 &&
+            candidate.y > centerExclusion.y - centerExclusion.height/2 && 
+            candidate.y < centerExclusion.y + centerExclusion.height/2) {
+          continue;
+        }
+        
+        // Calculate minimum distance to existing points
+        let minDistToExisting = Infinity;
+        for (const existing of positions) {
+          const dist = Math.sqrt(
+            Math.pow(candidate.x - existing.x, 2) + 
+            Math.pow(candidate.y - existing.y, 2)
+          );
+          minDistToExisting = Math.min(minDistToExisting, dist);
+        }
+        
+        // Keep candidate if it's the best so far
+        if (minDistToExisting > bestDistance) {
+          bestDistance = minDistToExisting;
+          bestCandidate = candidate;
+        }
+      }
+      
+      // Only add if minimum distance is met
+      if (bestCandidate && (positions.length === 0 || bestDistance >= minDistance)) {
+        positions.push(bestCandidate);
+      }
+    }
+    
+    return positions;
+  };
+
   const generateTextElements = () => {
+    const positions = generateDistributedPositions(18, 12); // Minimum 12% distance
     const elements = [];
-    const usedPositions = new Set();
     
-    // Create a grid system to prevent overlapping - reduced density
-    const gridCols = 10;
-    const gridRows = 8; // Increased rows to have more options while excluding center
-    
-    // Define exclusion zone for title/subtitle (center area)
-    const excludeZone = {
-      colStart: 2, // Exclude columns 2-7 (center 60% width)
-      colEnd: 7,
-      rowStart: 2, // Exclude rows 2-5 (center area)
-      rowEnd: 5
-    };
-    
-    // Reduced number of terms by ~40% (from 30 to 18)
-    for (let i = 0; i < 18; i++) {
+    for (let i = 0; i < positions.length; i++) {
       const text = LEGAL_TERMS[Math.floor(Math.random() * LEGAL_TERMS.length)];
       const isSignal = SIGNAL_TERMS.includes(text);
+      const { x, y } = positions[i];
       
-      // Find an available grid position outside exclusion zone
-      let gridPos;
-      let attempts = 0;
-      do {
-        const col = Math.floor(Math.random() * gridCols);
-        const row = Math.floor(Math.random() * gridRows);
-        
-        // Check if position is in exclusion zone
-        const inExclusionZone = col >= excludeZone.colStart && 
-                               col <= excludeZone.colEnd && 
-                               row >= excludeZone.rowStart && 
-                               row <= excludeZone.rowEnd;
-        
-        if (!inExclusionZone) {
-          gridPos = `${col}-${row}`;
-        }
-        attempts++;
-      } while ((!gridPos || usedPositions.has(gridPos)) && attempts < 100);
-      
-      if (attempts < 100 && gridPos) {
-        usedPositions.add(gridPos);
-        
-        const [col, row] = gridPos.split('-').map(Number);
-        const x = (col / gridCols) * 85 + 7.5; // 7.5% to 92.5% width
-        const y = (row / gridRows) * 80 + 10; // 10% to 90% height
-        const delay = Math.random() * 4000 + (isSignal ? 3000 : 0);
-        
-        elements.push(
-          <FloatingText
-            key={`${i}-${animationCycle}`}
-            text={text}
-            isSignal={isSignal}
-            delay={delay}
-            x={x}
-            y={y}
-          />
-        );
-      }
+      elements.push(
+        <FloatingText
+          key={`${i}-${animationCycle}`}
+          text={text}
+          isSignal={isSignal}
+          delay={0} // Delay is now handled internally based on position
+          x={x}
+          y={y}
+        />
+      );
     }
     
     return elements;
@@ -168,11 +182,11 @@ export const LextractHero = () => {
       {/* Main Content */}
       <div className="absolute inset-0 flex flex-col items-center justify-center z-40 px-8">
         <div className="text-center max-w-4xl">
-          <h1 className="text-4xl md:text-6xl lg:text-7xl font-light text-lextract-black mb-6 tracking-tight leading-tight">
+          <h1 className="text-4xl md:text-6xl lg:text-7xl font-light text-lextract-signature-dark mb-6 tracking-tight leading-tight">
             Intelligent automation of{' '}
-            <span className="text-lextract-signature-dark font-medium">legal due diligence</span>
+            <span className="font-medium">legal due diligence</span>
           </h1>
-          <p className="text-lg md:text-xl text-lextract-text-secondary font-light tracking-wide leading-relaxed max-w-2xl mx-auto">
+          <p className="text-lg md:text-xl text-lextract-signature-dark font-light tracking-wide leading-relaxed max-w-2xl mx-auto">
             Streamline complex legal processes with AI-driven precision and ease.
           </p>
         </div>
