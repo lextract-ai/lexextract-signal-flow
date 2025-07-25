@@ -45,8 +45,8 @@ export const FloatingKeyword = ({
       ref={keywordRef}
       className={`
         absolute text-xs font-sans tracking-wider uppercase select-none whitespace-nowrap
-        keyword
-        ${isHighlighted && isSignal ? 'highlighted' : ''}
+        keyword transition-colors duration-800 ease-in-out
+        ${isHighlighted ? 'highlighted' : ''}
       `}
       style={{
         left: `${x}%`,
@@ -54,9 +54,12 @@ export const FloatingKeyword = ({
         transform: 'translate(-50%, -50%)',
         zIndex: isSignal && isHighlighted ? 20 : 10,
         color: isHighlighted && isSignal 
-          ? undefined // Let CSS handle highlighted color
+          ? 'hsl(var(--lextract-signal))' 
           : 'hsl(var(--lextract-noise))',
-        opacity: isHighlighted && isSignal ? undefined : 0.35, // Let CSS handle highlighted opacity
+        opacity: isHighlighted && isSignal ? 1 : 0.35,
+        textShadow: isHighlighted && isSignal 
+          ? '0 0 8px hsl(var(--lextract-signal) / 0.6)' 
+          : 'none'
       }}
     >
       {text}
