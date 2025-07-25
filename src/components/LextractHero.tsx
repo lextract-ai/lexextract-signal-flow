@@ -55,50 +55,39 @@ export const LextractHero = () => {
   const staticTextElements = useMemo(() => {
     const elements = [];
     
-    // Responsive keyword layouts - fewer keywords on smaller screens
+    // Cleaner, more spaced out layouts
     const mobileLayout = [
-      { text: "Force Majeure", x: 15, y: 20 },
-      { text: "Change of Control", x: 85, y: 25, isSignal: true },
-      { text: "Due Diligence", x: 10, y: 75 },
-      { text: "Governing Law", x: 90, y: 80, isSignal: true },
-      { text: "Termination", x: 20, y: 85, isSignal: true },
-      { text: "AGB", x: 80, y: 15, isSignal: true }
+      { text: "Force Majeure", x: 15, y: 15 },
+      { text: "Change of Control", x: 85, y: 20, isSignal: true },
+      { text: "Due Diligence", x: 10, y: 80 },
+      { text: "Governing Law", x: 90, y: 85, isSignal: true }
     ];
     
     const tabletLayout = [
-      { text: "Force Majeure", x: 12, y: 18 },
-      { text: "Change of Control", x: 88, y: 22, isSignal: true },
+      { text: "Force Majeure", x: 12, y: 12 },
+      { text: "Change of Control", x: 88, y: 15, isSignal: true },
       { text: "Due Diligence", x: 8, y: 35 },
-      { text: "Governing Law", x: 92, y: 38, isSignal: true },
-      { text: "Confidentiality", x: 15, y: 75 },
-      { text: "Termination", x: 85, y: 78, isSignal: true },
-      { text: "Liability Cap", x: 10, y: 85 },
-      { text: "AGB", x: 90, y: 15, isSignal: true },
-      { text: "Shareholder Agreement", x: 75, y: 12, isSignal: true },
-      { text: "Amendment", x: 25, y: 88 }
+      { text: "Governing Law", x: 92, y: 40, isSignal: true },
+      { text: "Termination", x: 85, y: 75, isSignal: true },
+      { text: "AGB", x: 15, y: 85, isSignal: true },
+      { text: "Amendment", x: 20, y: 25 },
+      { text: "Jurisdiction", x: 80, y: 90 }
     ];
     
     const desktopLayout = [
-      { text: "Force Majeure", x: 10, y: 15 },
-      { text: "Change of Control", x: 90, y: 18, isSignal: true },
-      { text: "Due Diligence", x: 5, y: 32 },
+      { text: "Force Majeure", x: 8, y: 10 },
+      { text: "Change of Control", x: 92, y: 12, isSignal: true },
+      { text: "Due Diligence", x: 5, y: 30 },
       { text: "Governing Law", x: 95, y: 35, isSignal: true },
-      { text: "Confidentiality", x: 12, y: 72 },
-      { text: "Termination", x: 88, y: 75, isSignal: true },
-      { text: "Liability Cap", x: 8, y: 82 },
-      { text: "AGB", x: 92, y: 12, isSignal: true },
-      { text: "Arbitration Clause", x: 25, y: 8 },
-      { text: "Shareholder Agreement", x: 75, y: 10, isSignal: true },
-      { text: "Amendment", x: 15, y: 88 },
-      { text: "Jurisdiction", x: 85, y: 85 },
-      { text: "Escrow", x: 20, y: 92 },
-      { text: "Joint Venture", x: 80, y: 90 },
-      { text: "Breach of Contract", x: 18, y: 25 },
-      { text: "Intellectual Property", x: 82, y: 28 }
+      { text: "Confidentiality", x: 12, y: 65 },
+      { text: "Termination", x: 88, y: 70, isSignal: true },
+      { text: "Liability Cap", x: 10, y: 85 },
+      { text: "AGB", x: 90, y: 88, isSignal: true },
+      { text: "Shareholder Agreement", x: 70, y: 8, isSignal: true },
+      { text: "Amendment", x: 25, y: 20 },
+      { text: "Jurisdiction", x: 75, y: 92 },
+      { text: "Joint Venture", x: 30, y: 90 }
     ];
-    
-    // Choose layout based on screen size (we'll use CSS classes to show/hide)
-    // For now, we'll create all layouts and use responsive classes
     
     // Mobile keywords (always visible)
     mobileLayout.forEach((layout, i) => {
