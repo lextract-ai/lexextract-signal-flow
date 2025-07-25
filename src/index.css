@@ -8,42 +8,48 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Lextract Design System */
-    --background: 218 25% 6%;
-    --foreground: 210 40% 98%;
+    /* Lextract Light Theme Design System */
+    --background: 0 0% 98%;
+    --foreground: 0 0% 0%;
 
-    --card: 220 20% 8%;
-    --card-foreground: 210 40% 98%;
+    --card: 0 0% 95%;
+    --card-foreground: 0 0% 0%;
 
-    --popover: 220 20% 8%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 0 0% 98%;
+    --popover-foreground: 0 0% 0%;
 
-    --primary: 189 100% 45%;
-    --primary-foreground: 218 25% 6%;
+    --primary: 186 18% 30%;
+    --primary-foreground: 0 0% 98%;
 
-    --secondary: 195 100% 75%;
-    --secondary-foreground: 218 25% 6%;
+    --secondary: 187 28% 80%;
+    --secondary-foreground: 0 0% 0%;
 
-    --muted: 217 32% 15%;
-    --muted-foreground: 215 20% 65%;
+    --muted: 187 28% 90%;
+    --muted-foreground: 186 18% 30%;
 
-    --accent: 189 100% 45%;
-    --accent-foreground: 218 25% 6%;
+    --accent: 186 18% 30%;
+    --accent-foreground: 0 0% 98%;
 
     --destructive: 0 84% 60%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive-foreground: 0 0% 98%;
 
-    --border: 217 32% 15%;
-    --input: 217 32% 15%;
-    --ring: 189 100% 45%;
+    --border: 187 28% 85%;
+    --input: 187 28% 85%;
+    --ring: 186 18% 30%;
 
-    /* Lextract Specific Colors */
-    --lextract-navy: 218 25% 6%;
-    --lextract-dark-gray: 220 15% 12%;
-    --lextract-teal: 189 100% 45%;
-    --lextract-electric: 195 100% 75%;
-    --lextract-noise: 215 10% 25%;
-    --lextract-signal: 189 100% 65%;
+    /* Lextract Brand Colors */
+    --lextract-signature-dark: 186 18% 30%;  /* #3A5B5C */
+    --lextract-signature-light: 184 94% 51%; /* #08EFF5 */
+    --lextract-text-light: 187 28% 80%;     /* #CADEE0 */
+    --lextract-black: 0 0% 0%;
+    --lextract-white: 0 0% 100%;
+    
+    /* Light Background Specific */
+    --lextract-background: 0 0% 98%;
+    --lextract-text-primary: 0 0% 0%;
+    --lextract-text-secondary: 186 18% 30%;
+    --lextract-noise: 186 18% 45%;
+    --lextract-signal: 184 94% 51%;
 
     /* Animation Variables */
     --beam-glow: 189 100% 45%;
@@ -221,24 +227,24 @@ All colors MUST be HSL.
 
 /* Lextract Animation Classes */
 .text-noise {
-  filter: blur(1.5px);
-  opacity: 0.25;
-  animation: textFloat 8s ease-in-out infinite, textFlicker 3s ease-in-out infinite;
+  filter: none;
+  opacity: 0.35;
+  color: hsl(var(--lextract-noise));
 }
 
 .text-signal-glow {
-  filter: blur(0px);
+  filter: none;
   opacity: 1;
-  color: hsl(var(--lextract-electric));
+  color: hsl(var(--lextract-signal));
   animation: textClarify 1.5s ease-out forwards, textPulse 4s ease-in-out infinite;
 }
 
 .vertical-beam-sweep {
   background: linear-gradient(90deg, 
     transparent 0%, 
-    hsl(var(--lextract-teal) / 0.05) 20%,
-    hsl(var(--lextract-electric) / 0.15) 50%,
-    hsl(var(--lextract-teal) / 0.05) 80%,
+    hsl(var(--lextract-signature-dark) / 0.08) 20%,
+    hsl(var(--lextract-signature-light) / 0.15) 50%,
+    hsl(var(--lextract-signature-dark) / 0.08) 80%,
     transparent 100%
   );
   animation: verticalBeamSweep 8s linear infinite;
@@ -246,8 +252,8 @@ All colors MUST be HSL.
 
 .signal-wave {
   background: linear-gradient(90deg, 
-    hsl(var(--lextract-teal)), 
-    hsl(var(--lextract-electric))
+    hsl(var(--lextract-signature-dark)), 
+    hsl(var(--lextract-signature-light))
   );
   animation: signalWave 4s ease-in-out infinite;
 }

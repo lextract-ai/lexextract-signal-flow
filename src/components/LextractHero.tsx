@@ -36,17 +36,16 @@ const FloatingText = ({ text, isSignal, delay, x, y }: FloatingTextProps) => {
 
   return (
     <div
-      className={`absolute text-xs font-sans tracking-wider uppercase select-none transition-all duration-1500 whitespace-nowrap ${
+      className={`absolute text-xs font-sans tracking-wider uppercase select-none whitespace-nowrap ${
         isSignal && isTransformed 
-          ? 'text-signal-glow opacity-100 filter-none scale-110 z-20' 
-          : 'text-noise opacity-25'
+          ? 'text-signal-glow opacity-100 scale-110 z-20' 
+          : 'text-noise'
       }`}
       style={{
         left: `${x}%`,
         top: `${y}%`,
-        animationDelay: `${delay}ms`,
         transform: `translate(-50%, -50%)`,
-        textShadow: isSignal && isTransformed ? '0 0 8px hsl(var(--lextract-electric) / 0.6)' : 'none'
+        textShadow: isSignal && isTransformed ? '0 0 8px hsl(var(--lextract-signature-light) / 0.6)' : 'none'
       }}
     >
       {text}
@@ -130,9 +129,9 @@ export const LextractHero = () => {
   };
 
   return (
-    <div className="relative w-full h-screen bg-lextract-navy overflow-hidden font-sans">
+    <div className="relative w-full h-screen bg-lextract-background overflow-hidden font-sans">
       {/* Background Texture */}
-      <div className="absolute inset-0 bg-gradient-to-br from-lextract-navy via-lextract-darkgray to-lextract-navy" />
+      <div className="absolute inset-0 bg-gradient-to-br from-lextract-background via-white to-lextract-background" />
       
       {/* Floating Legal Text */}
       <div className="absolute inset-0">
@@ -147,11 +146,11 @@ export const LextractHero = () => {
       
       {/* Enhanced Grid Overlay with Scanlines */}
       <div 
-        className="absolute inset-0 opacity-[0.08] z-5"
+        className="absolute inset-0 opacity-[0.12] z-5"
         style={{
           backgroundImage: `
-            linear-gradient(rgba(195, 255, 255, 0.3) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(195, 255, 255, 0.15) 1px, transparent 1px)
+            linear-gradient(hsl(var(--lextract-signature-dark) / 0.2) 1px, transparent 1px),
+            linear-gradient(90deg, hsl(var(--lextract-signature-dark) / 0.1) 1px, transparent 1px)
           `,
           backgroundSize: '40px 40px'
         }}
@@ -159,9 +158,9 @@ export const LextractHero = () => {
       
       {/* Vertical Scanlines */}
       <div 
-        className="absolute inset-0 opacity-[0.05] z-5"
+        className="absolute inset-0 opacity-[0.08] z-5"
         style={{
-          backgroundImage: `linear-gradient(90deg, transparent 0%, rgba(195, 255, 255, 0.1) 50%, transparent 100%)`,
+          backgroundImage: `linear-gradient(90deg, transparent 0%, hsl(var(--lextract-signature-dark) / 0.15) 50%, transparent 100%)`,
           backgroundSize: '3px 100%',
           animation: 'scanlineMove 12s linear infinite'
         }}
@@ -170,11 +169,11 @@ export const LextractHero = () => {
       {/* Main Content */}
       <div className="absolute inset-0 flex flex-col items-center justify-center z-40 px-8">
         <div className="text-center max-w-4xl">
-          <h1 className="text-4xl md:text-6xl lg:text-7xl font-light text-foreground mb-6 tracking-tight leading-tight">
+          <h1 className="text-4xl md:text-6xl lg:text-7xl font-light text-lextract-black mb-6 tracking-tight leading-tight">
             We build AI that{' '}
-            <span className="text-lextract-electric font-medium">speaks legal</span>
+            <span className="text-lextract-signature-dark font-medium">speaks legal</span>
           </h1>
-          <p className="text-lg md:text-xl text-muted-foreground font-light tracking-wide leading-relaxed max-w-2xl mx-auto">
+          <p className="text-lg md:text-xl text-lextract-text-secondary font-light tracking-wide leading-relaxed max-w-2xl mx-auto">
             Lextract helps deal lawyers cut through complexity with explainable, precision AI.
           </p>
         </div>
