@@ -22,51 +22,37 @@ interface FloatingTextProps {
 }
 
 const FloatingText = ({ text, isSignal, x, y, animationCycle }: FloatingTextProps) => {
-  const [scannerProgress, setScannerProgress] = useState(0);
+  const [hasTransitioned, setHasTransitioned] = useState(false);
   
   useEffect(() => {
-    const startTime = Date.now();
-    const duration = 8000; // 8 seconds beam sweep
+    // Calculate delay based on x position (left to right)
+    // Words on the left (x=0) start immediately, words on the right (x=100) start after 6 seconds
+    const delay = (x / 100) * 6000;
     
-    const updateProgress = () => {
-      const elapsed = Date.now() - startTime;
-      const progress = Math.min(elapsed / duration, 1);
-      setScannerProgress(progress);
-      
-      if (progress < 1) {
-        requestAnimationFrame(updateProgress);
-      }
-    };
+    const timer = setTimeout(() => {
+      setHasTransitioned(true);
+    }, delay);
     
-    updateProgress();
-  }, [animationCycle]);
+    return () => clearTimeout(timer);
+  }, [x, animationCycle]);
 
-  // Calculate if scanner has passed this text position
-  const scannerX = scannerProgress * 100;
-  const hasBeenScanned = scannerX >= x;
-  const isCurrentlyScanning = scannerX >= x - 5 && scannerX <= x + 5;
-  
-  // Determine text state
-  let textClass = 'text-lextract-noise opacity-60';
-  
-  if (isSignal) {
-    if (isCurrentlyScanning) {
-      textClass = 'text-lextract-electric opacity-100 scale-105 shadow-sm';
-    } else if (hasBeenScanned) {
-      textClass = 'text-lextract-teal opacity-90 scale-102';
-    }
-  } else if (isCurrentlyScanning) {
-    textClass = 'text-lextract-signature-dark opacity-80';
-  }
+  // Reset transition when animation cycle changes
+  useEffect(() => {
+    setHasTransitioned(false);
+  }, [animationCycle]);
 
   return (
     <div
-      className={`absolute text-xs md:text-sm font-sans tracking-wider uppercase select-none whitespace-nowrap transition-all duration-300 ease-in-out ${textClass}`}
+      className={`absolute text-xs md:text-sm font-sans tracking-wider uppercase select-none whitespace-nowrap transition-all duration-1000 ease-out ${
+        hasTransitioned && isSignal 
+          ? 'opacity-100' 
+          : 'opacity-60'
+      }`}
       style={{
         left: `${x}%`,
         top: `${y}%`,
         transform: `translate(-50%, -50%)`,
-        textShadow: isCurrentlyScanning && isSignal ? '0 0 8px hsl(var(--lextract-electric) / 0.4)' : 'none'
+        color: hasTransitioned && isSignal ? '#08EFF5' : '#9CA3AF'
       }}
     >
       {text}
