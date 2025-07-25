@@ -13,37 +13,42 @@ const LEGAL_TERMS = [
 
 const SIGNAL_TERMS = ["Change of Control", "Governing Law", "Termination", "AGB", "Shareholder Agreement"];
 
+interface KeywordPosition {
+  x: number;
+  y: number;
+  text: string;
+  isSignal: boolean;
+  scannerDelay: number;
+}
+
 interface FloatingTextProps {
   text: string;
   isSignal: boolean;
-  delay: number;
   x: number;
   y: number;
+  scannerDelay: number;
+  animationCycle: number;
 }
 
-const FloatingText = ({ text, isSignal, delay, x, y }: FloatingTextProps) => {
-  const [isTransformed, setIsTransformed] = useState(false);
+const FloatingText = ({ text, isSignal, x, y, scannerDelay, animationCycle }: FloatingTextProps) => {
+  const [isHighlighted, setIsHighlighted] = useState(false);
   
   useEffect(() => {
-    // Calculate scanner sync delay based on horizontal position
-    // Scanner takes 8 seconds and starts from -100%, reaches x% at (x + 100) / 200 * 8 seconds
-    const scannerDelay = ((x + 100) / 200) * 8000;
-    
-    const timer = setTimeout(() => {
-      if (isSignal) {
-        setIsTransformed(true);
-      }
-    }, scannerDelay);
-    
-    return () => clearTimeout(timer);
-  }, [isSignal, x]);
+    if (isSignal) {
+      const timer = setTimeout(() => {
+        setIsHighlighted(true);
+      }, scannerDelay);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [isSignal, scannerDelay, animationCycle]);
 
   return (
     <div
-      className={`absolute text-xs font-sans tracking-wider uppercase select-none whitespace-nowrap transition-all duration-1000 ease-out ${
-        isSignal && isTransformed 
-          ? 'text-lextract-signature-light opacity-100 z-20' 
-          : 'text-gray-400 opacity-60'
+      className={`absolute text-xs font-sans tracking-wider uppercase select-none whitespace-nowrap transition-colors duration-500 ease-out ${
+        isSignal && isHighlighted 
+          ? 'text-lextract-signal' 
+          : 'text-lextract-noise'
       }`}
       style={{
         left: `${x}%`,
@@ -56,99 +61,162 @@ const FloatingText = ({ text, isSignal, delay, x, y }: FloatingTextProps) => {
   );
 };
 
+// Poisson disk sampling for even distribution
+const generatePoissonDiskSampling = (
+  width: number, 
+  height: number, 
+  radius: number, 
+  k: number = 30
+): Array<{x: number, y: number}> => {
+  const cellSize = radius / Math.sqrt(2);
+  const gridWidth = Math.ceil(width / cellSize);
+  const gridHeight = Math.ceil(height / cellSize);
+  const grid: Array<Array<{x: number, y: number} | null>> = Array(gridHeight).fill(null).map(() => Array(gridWidth).fill(null));
+  
+  const activeList: Array<{x: number, y: number}> = [];
+  const points: Array<{x: number, y: number}> = [];
+  
+  // Exclusion zones for headings (center area)
+  const exclusionZones = [
+    { x: 30, y: 40, width: 40, height: 20 }, // Main heading area
+  ];
+  
+  const isInExclusionZone = (x: number, y: number) => {
+    return exclusionZones.some(zone => 
+      x >= zone.x && x <= zone.x + zone.width &&
+      y >= zone.y && y <= zone.y + zone.height
+    );
+  };
+  
+  const getGridPos = (x: number, y: number) => ({
+    gridX: Math.floor(x / cellSize),
+    gridY: Math.floor(y / cellSize)
+  });
+  
+  const isValidPoint = (x: number, y: number) => {
+    if (x < 5 || x > width - 5 || y < 5 || y > height - 5) return false;
+    if (isInExclusionZone(x, y)) return false;
+    
+    const { gridX, gridY } = getGridPos(x, y);
+    
+    for (let dy = -2; dy <= 2; dy++) {
+      for (let dx = -2; dx <= 2; dx++) {
+        const nx = gridX + dx;
+        const ny = gridY + dy;
+        
+        if (nx >= 0 && nx < gridWidth && ny >= 0 && ny < gridHeight && grid[ny][nx]) {
+          const neighbor = grid[ny][nx]!;
+          const dist = Math.sqrt((x - neighbor.x) ** 2 + (y - neighbor.y) ** 2);
+          if (dist < radius) return false;
+        }
+      }
+    }
+    
+    return true;
+  };
+  
+  // Start with random initial point outside exclusion zones
+  let initialPoint;
+  let attempts = 0;
+  do {
+    initialPoint = {
+      x: Math.random() * width,
+      y: Math.random() * height
+    };
+    attempts++;
+  } while ((!isValidPoint(initialPoint.x, initialPoint.y) || isInExclusionZone(initialPoint.x, initialPoint.y)) && attempts < 100);
+  
+  if (attempts < 100) {
+    const { gridX, gridY } = getGridPos(initialPoint.x, initialPoint.y);
+    grid[gridY][gridX] = initialPoint;
+    activeList.push(initialPoint);
+    points.push(initialPoint);
+  }
+  
+  while (activeList.length > 0 && points.length < 20) {
+    const randomIndex = Math.floor(Math.random() * activeList.length);
+    const point = activeList[randomIndex];
+    let found = false;
+    
+    for (let i = 0; i < k; i++) {
+      const angle = Math.random() * 2 * Math.PI;
+      const distance = radius + Math.random() * radius;
+      const newX = point.x + Math.cos(angle) * distance;
+      const newY = point.y + Math.sin(angle) * distance;
+      
+      if (isValidPoint(newX, newY)) {
+        const { gridX, gridY } = getGridPos(newX, newY);
+        const newPoint = { x: newX, y: newY };
+        grid[gridY][gridX] = newPoint;
+        activeList.push(newPoint);
+        points.push(newPoint);
+        found = true;
+        break;
+      }
+    }
+    
+    if (!found) {
+      activeList.splice(randomIndex, 1);
+    }
+  }
+  
+  return points;
+};
+
 export const LextractHero = () => {
   const [animationCycle, setAnimationCycle] = useState(0);
+  const [keywordPositions, setKeywordPositions] = useState<KeywordPosition[]>([]);
+  
+  useEffect(() => {
+    // Generate static positions using Poisson disk sampling
+    const positions = generatePoissonDiskSampling(100, 100, 8); // 8% minimum distance
+    
+    const keywords: KeywordPosition[] = positions.slice(0, 16).map((pos, index) => {
+      const text = LEGAL_TERMS[index % LEGAL_TERMS.length];
+      const isSignal = SIGNAL_TERMS.includes(text);
+      
+      // Calculate scanner delay: scanner sweeps from left (0%) to right (100%) over 8 seconds
+      // When scanner reaches position x%, the delay should be (x/100) * 8000ms
+      const scannerDelay = (pos.x / 100) * 8000;
+      
+      return {
+        x: pos.x,
+        y: pos.y,
+        text,
+        isSignal,
+        scannerDelay
+      };
+    });
+    
+    setKeywordPositions(keywords);
+  }, [animationCycle]);
   
   useEffect(() => {
     const interval = setInterval(() => {
       setAnimationCycle(prev => prev + 1);
-    }, 8000); // Reset beam every 8 seconds
+    }, 12000); // Reset every 12 seconds to allow full scanner + transition cycle
     
     return () => clearInterval(interval);
   }, []);
-
-  // Generate distributed positions using Mitchell's best-candidate algorithm
-  const generateDistributedPositions = (count: number, minDistance: number) => {
-    const positions = [];
-    const centerExclusion = { x: 50, y: 50, width: 40, height: 30 }; // Center exclusion zone
-    
-    for (let i = 0; i < count; i++) {
-      let bestCandidate = null;
-      let bestDistance = 0;
-      
-      // Generate multiple candidates and pick the one furthest from existing points
-      for (let j = 0; j < 30; j++) {
-        const candidate = {
-          x: Math.random() * 100,
-          y: Math.random() * 100
-        };
-        
-        // Skip if in center exclusion zone
-        if (candidate.x > centerExclusion.x - centerExclusion.width/2 && 
-            candidate.x < centerExclusion.x + centerExclusion.width/2 &&
-            candidate.y > centerExclusion.y - centerExclusion.height/2 && 
-            candidate.y < centerExclusion.y + centerExclusion.height/2) {
-          continue;
-        }
-        
-        // Calculate minimum distance to existing points
-        let minDistToExisting = Infinity;
-        for (const existing of positions) {
-          const dist = Math.sqrt(
-            Math.pow(candidate.x - existing.x, 2) + 
-            Math.pow(candidate.y - existing.y, 2)
-          );
-          minDistToExisting = Math.min(minDistToExisting, dist);
-        }
-        
-        // Keep candidate if it's the best so far
-        if (minDistToExisting > bestDistance) {
-          bestDistance = minDistToExisting;
-          bestCandidate = candidate;
-        }
-      }
-      
-      // Only add if minimum distance is met
-      if (bestCandidate && (positions.length === 0 || bestDistance >= minDistance)) {
-        positions.push(bestCandidate);
-      }
-    }
-    
-    return positions;
-  };
-
-  const generateTextElements = () => {
-    const positions = generateDistributedPositions(18, 12); // Minimum 12% distance
-    const elements = [];
-    
-    for (let i = 0; i < positions.length; i++) {
-      const text = LEGAL_TERMS[Math.floor(Math.random() * LEGAL_TERMS.length)];
-      const isSignal = SIGNAL_TERMS.includes(text);
-      const { x, y } = positions[i];
-      
-      elements.push(
-        <FloatingText
-          key={`${i}-${animationCycle}`}
-          text={text}
-          isSignal={isSignal}
-          delay={0} // Delay is now handled internally based on position
-          x={x}
-          y={y}
-        />
-      );
-    }
-    
-    return elements;
-  };
 
   return (
     <div className="relative w-full h-screen bg-lextract-background overflow-hidden font-sans">
       {/* Background Texture */}
       <div className="absolute inset-0 bg-gradient-to-br from-lextract-background via-white to-lextract-background" />
       
-      {/* Floating Legal Text */}
+      {/* Static Keywords */}
       <div className="absolute inset-0">
-        {generateTextElements()}
+        {keywordPositions.map((keyword, index) => (
+          <FloatingText
+            key={`${index}-${animationCycle}`}
+            text={keyword.text}
+            isSignal={keyword.isSignal}
+            x={keyword.x}
+            y={keyword.y}
+            scannerDelay={keyword.scannerDelay}
+            animationCycle={animationCycle}
+          />
+        ))}
       </div>
       
       {/* Vertical Beam Sweep (Left to Right) */}
@@ -157,7 +225,7 @@ export const LextractHero = () => {
         key={`beam-${animationCycle}`}
       />
       
-      {/* Enhanced Grid Overlay with Scanlines */}
+      {/* Enhanced Grid Overlay */}
       <div 
         className="absolute inset-0 opacity-[0.12] z-5"
         style={{
@@ -169,24 +237,14 @@ export const LextractHero = () => {
         }}
       />
       
-      {/* Vertical Scanlines */}
-      <div 
-        className="absolute inset-0 opacity-[0.08] z-5"
-        style={{
-          backgroundImage: `linear-gradient(90deg, transparent 0%, hsl(var(--lextract-signature-dark) / 0.15) 50%, transparent 100%)`,
-          backgroundSize: '3px 100%',
-          animation: 'scanlineMove 12s linear infinite'
-        }}
-      />
-      
       {/* Main Content */}
       <div className="absolute inset-0 flex flex-col items-center justify-center z-40 px-8">
         <div className="text-center max-w-4xl">
-          <h1 className="text-4xl md:text-6xl lg:text-7xl font-light text-lextract-signature-dark mb-6 tracking-tight leading-tight">
+          <h1 className="text-4xl md:text-6xl lg:text-7xl font-light text-lextract-text-primary mb-6 tracking-tight leading-tight">
             Intelligent automation of{' '}
             <span className="font-medium">legal due diligence</span>
           </h1>
-          <p className="text-lg md:text-xl text-lextract-signature-dark font-light tracking-wide leading-relaxed max-w-2xl mx-auto">
+          <p className="text-lg md:text-xl text-lextract-text-secondary font-light tracking-wide leading-relaxed max-w-2xl mx-auto">
             Streamline complex legal processes with AI-driven precision and ease.
           </p>
         </div>
