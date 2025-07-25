@@ -284,11 +284,14 @@ All colors MUST be HSL.
 
 /* Keyword Animation */
 .keyword {
-  color: rgba(156, 163, 175, 0.6);
-const animationDelay = (x / 100) * 6; // syncs with scanner duration
+  color: rgba(156, 163, 175, 0.2); /* start as very faint gray */
+  opacity: 0;
+  transform: translateY(8px);
+  animation: keywordFadeIn 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
   position: relative;
   z-index: 1;
 }
+
 
 @keyframes keywordColorSync {
   0%, 100% { 
