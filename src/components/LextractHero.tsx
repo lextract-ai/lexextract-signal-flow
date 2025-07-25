@@ -159,7 +159,7 @@ export const LextractHero = () => {
     });
     
     return elements;
-  }, []); // Empty dependency array to keep layout static
+  }, [animationCycle]); // Add animationCycle as dependency
 
   return (
     <div className="relative w-full h-screen bg-lextract-background overflow-hidden font-sans">
