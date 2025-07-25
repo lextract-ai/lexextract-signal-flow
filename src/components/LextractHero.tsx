@@ -16,35 +16,85 @@ const SIGNAL_TERMS = ["Change of Control", "Governing Law", "Termination", "AGB"
 interface FloatingTextProps {
   text: string;
   isSignal: boolean;
-  delay: number;
   x: number;
   y: number;
+  animationCycle: number;
 }
 
-const FloatingText = ({ text, isSignal, delay, x, y }: FloatingTextProps) => {
-  const [isTransformed, setIsTransformed] = useState(false);
+const FloatingText = ({ text, isSignal, x, y, animationCycle }: FloatingTextProps) => {
+  const [transitionProgress, setTransitionProgress] = useState(0);
   
   useEffect(() => {
+    if (!isSignal) return;
+    
+    const startTime = 2000; // Scanner starts at 2s
+    const scanDuration = 6000; // Scanner takes 6s to cross screen
+    const textPosition = x / 100; // Convert percentage to 0-1
+    const scanStart = startTime + (textPosition * scanDuration);
+    const transitionDuration = 2000; // 2s transition
+    
     const timer = setTimeout(() => {
-      if (isSignal) {
-        setIsTransformed(true);
-      }
-    }, delay);
+      // Animate transition progress from 0 to 1 over transitionDuration
+      const interval = setInterval(() => {
+        setTransitionProgress(prev => {
+          const next = prev + (16 / transitionDuration); // 16ms intervals
+          if (next >= 1) {
+            clearInterval(interval);
+            return 1;
+          }
+          return next;
+        });
+      }, 16);
+      
+      return () => clearInterval(interval);
+    }, scanStart);
     
     return () => clearTimeout(timer);
-  }, [isSignal, delay]);
+  }, [isSignal, x, animationCycle]);
+
+  // Reset transition progress when animation cycle changes
+  useEffect(() => {
+    setTransitionProgress(0);
+  }, [animationCycle]);
+
+  const getInterpolatedColor = () => {
+    if (!isSignal || transitionProgress === 0) {
+      return 'hsl(var(--lextract-noise))';
+    }
+    
+    // Interpolate between noise color and signal color
+    const noiseHsl = [186, 18, 45]; // --lextract-noise
+    const signalHsl = [184, 94, 51]; // --lextract-signal
+    
+    const h = noiseHsl[0] + (signalHsl[0] - noiseHsl[0]) * transitionProgress;
+    const s = noiseHsl[1] + (signalHsl[1] - noiseHsl[1]) * transitionProgress;
+    const l = noiseHsl[2] + (signalHsl[2] - noiseHsl[2]) * transitionProgress;
+    
+    return `hsl(${h}, ${s}%, ${l}%)`;
+  };
+
+  const getOpacity = () => {
+    if (!isSignal) return 0.35;
+    return 0.35 + (0.65 * transitionProgress);
+  };
+
+  const getTextShadow = () => {
+    if (!isSignal || transitionProgress === 0) return 'none';
+    const shadowOpacity = 0.6 * transitionProgress;
+    return `0 0 8px hsl(var(--lextract-signal) / ${shadowOpacity})`;
+  };
 
   return (
     <div
-      className={`absolute text-xs font-sans tracking-wider uppercase select-none whitespace-nowrap ${
-        isSignal && isTransformed 
-          ? 'text-signal-glow opacity-100 scale-110 z-20' 
-          : 'text-noise'
-      }`}
+      className="absolute text-xs font-sans tracking-wider uppercase select-none whitespace-nowrap text-transitioning"
       style={{
         left: `${x}%`,
         top: `${y}%`,
-        transform: `translate(-50%, -50%)`
+        transform: `translate(-50%, -50%) scale(${1 + (0.1 * transitionProgress)})`,
+        color: getInterpolatedColor(),
+        opacity: getOpacity(),
+        textShadow: getTextShadow(),
+        zIndex: isSignal && transitionProgress > 0 ? 20 : 10
       }}
     >
       {text}
@@ -64,65 +114,76 @@ export const LextractHero = () => {
   }, []);
 
   const generateTextElements = () => {
+    // Fixed seed for consistent layout across animation cycles
+    const seed = 12345;
+    let random = seed;
+    const seededRandom = () => {
+      random = (random * 9301 + 49297) % 233280;
+      return random / 233280;
+    };
+
     const elements = [];
-    const usedPositions = new Set();
+    const positions = [];
+    const minDistance = 8; // Minimum distance between keywords (in percentage)
     
-    // Create a grid system to prevent overlapping - reduced density
-    const gridCols = 10;
-    const gridRows = 8; // Increased rows to have more options while excluding center
-    
-    // Define exclusion zone for title/subtitle (center area)
+    // Define exclusion zone for title/subtitle (responsive)
     const excludeZone = {
-      colStart: 2, // Exclude columns 2-7 (center 60% width)
-      colEnd: 7,
-      rowStart: 2, // Exclude rows 2-5 (center area)
-      rowEnd: 5
+      xMin: 15, xMax: 85, // Center 70% horizontally
+      yMin: 25, yMax: 75  // Center 50% vertically
     };
     
-    // Reduced number of terms by ~40% (from 30 to 18)
-    for (let i = 0; i < 18; i++) {
-      const text = LEGAL_TERMS[Math.floor(Math.random() * LEGAL_TERMS.length)];
-      const isSignal = SIGNAL_TERMS.includes(text);
-      
-      // Find an available grid position outside exclusion zone
-      let gridPos;
+    // Generate fixed positions using Poisson disk sampling
+    const maxAttempts = 30;
+    const targetCount = 16;
+    
+    for (let i = 0; i < targetCount; i++) {
+      let validPosition = null;
       let attempts = 0;
-      do {
-        const col = Math.floor(Math.random() * gridCols);
-        const row = Math.floor(Math.random() * gridRows);
+      
+      while (!validPosition && attempts < maxAttempts) {
+        const x = seededRandom() * 90 + 5; // 5% to 95%
+        const y = seededRandom() * 85 + 7.5; // 7.5% to 92.5%
         
         // Check if position is in exclusion zone
-        const inExclusionZone = col >= excludeZone.colStart && 
-                               col <= excludeZone.colEnd && 
-                               row >= excludeZone.rowStart && 
-                               row <= excludeZone.rowEnd;
+        const inExclusionZone = x >= excludeZone.xMin && x <= excludeZone.xMax && 
+                               y >= excludeZone.yMin && y <= excludeZone.yMax;
         
         if (!inExclusionZone) {
-          gridPos = `${col}-${row}`;
+          // Check distance from other positions
+          const tooClose = positions.some(pos => {
+            const distance = Math.sqrt(Math.pow(x - pos.x, 2) + Math.pow(y - pos.y, 2));
+            return distance < minDistance;
+          });
+          
+          if (!tooClose) {
+            validPosition = { x, y };
+          }
         }
         attempts++;
-      } while ((!gridPos || usedPositions.has(gridPos)) && attempts < 100);
+      }
       
-      if (attempts < 100 && gridPos) {
-        usedPositions.add(gridPos);
-        
-        const [col, row] = gridPos.split('-').map(Number);
-        const x = (col / gridCols) * 85 + 7.5; // 7.5% to 92.5% width
-        const y = (row / gridRows) * 80 + 10; // 10% to 90% height
-        const delay = Math.random() * 4000 + (isSignal ? 3000 : 0);
-        
-        elements.push(
-          <FloatingText
-            key={`${i}-${animationCycle}`}
-            text={text}
-            isSignal={isSignal}
-            delay={delay}
-            x={x}
-            y={y}
-          />
-        );
+      if (validPosition) {
+        positions.push(validPosition);
       }
     }
+    
+    // Assign terms to fixed positions
+    positions.forEach((pos, i) => {
+      const termIndex = i % LEGAL_TERMS.length;
+      const text = LEGAL_TERMS[termIndex];
+      const isSignal = SIGNAL_TERMS.includes(text);
+      
+      elements.push(
+        <FloatingText
+          key={`${text}-${pos.x}-${pos.y}`}
+          text={text}
+          isSignal={isSignal}
+          x={pos.x}
+          y={pos.y}
+          animationCycle={animationCycle}
+        />
+      );
+    });
     
     return elements;
   };

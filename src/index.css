@@ -230,23 +230,32 @@ All colors MUST be HSL.
   filter: none;
   opacity: 0.35;
   color: hsl(var(--lextract-noise));
+  transition: all 2s ease-out;
 }
 
 .text-signal-glow {
   filter: none;
   opacity: 1;
   color: hsl(var(--lextract-signal));
-  transition: color 1.5s ease-out;
+  text-shadow: 0 0 8px hsl(var(--lextract-signal) / 0.6);
+  transition: all 2s ease-out;
+}
+
+.text-transitioning {
+  transition: all 2s ease-out;
 }
 
 .vertical-beam-sweep {
   background: linear-gradient(90deg, 
     transparent 0%, 
-    hsl(var(--lextract-signature-dark) / 0.08) 20%,
-    hsl(var(--lextract-signature-light) / 0.15) 50%,
-    hsl(var(--lextract-signature-dark) / 0.08) 80%,
+    hsl(var(--lextract-signature-dark) / 0.2) 15%,
+    hsl(var(--lextract-signature-light) / 0.4) 40%,
+    hsl(var(--lextract-signature-light) / 0.6) 50%,
+    hsl(var(--lextract-signature-light) / 0.4) 60%,
+    hsl(var(--lextract-signature-dark) / 0.2) 85%,
     transparent 100%
   );
+  box-shadow: 0 0 20px hsl(var(--lextract-signature-light) / 0.3);
   animation: verticalBeamSweep 8s linear infinite;
 }
 
