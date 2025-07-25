@@ -266,3 +266,14 @@ All colors MUST be HSL.
   );
   animation: signalWave 4s ease-in-out infinite;
 }
+
+/* Keyword styling */
+.keyword {
+  transition: color 0.8s ease;
+}
+
+.highlighted {
+  color: hsl(var(--lextract-signal)) !important;
+  opacity: 1 !important;
+  text-shadow: 0 0 8px hsl(var(--lextract-signal) / 0.6) !important;
+}
