@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 const LEGAL_TERMS = [
   "Force Majeure", "Indemnification", "Material Adverse Change",
   "Change of Control", "Governing Law", "Termination", 
-  "Due Diligence", "Confidentiality", "Intellectual Property",
+  "EXPIRING TERMS", "Confidentiality", "Intellectual Property",
   "Liability Cap", "Arbitration", "Jurisdiction",
   "Amendment", "Warranties", "Covenants",
   "Merger", "Joint Venture", "Escrow"
