@@ -46,10 +46,10 @@ All colors MUST be HSL.
     
     /* Light Background Specific */
     --lextract-background: 0 0% 98%;
-    --lextract-text-primary: 186 18% 30%;   /* #3A5B5C for headings */
-    --lextract-text-secondary: 186 18% 30%; /* #3A5B5C for subheadings */
-    --lextract-noise: 0 0% 70%;             /* Light grey for keywords */
-    --lextract-signal: 184 94% 51%;         /* #08EFF5 for transformed keywords */
+    --lextract-text-primary: 0 0% 0%;
+    --lextract-text-secondary: 186 18% 30%;
+    --lextract-noise: 186 18% 45%;
+    --lextract-signal: 184 94% 51%;
 
     /* Animation Variables */
     --beam-glow: 189 100% 45%;
@@ -242,9 +242,9 @@ All colors MUST be HSL.
 .vertical-beam-sweep {
   background: linear-gradient(90deg, 
     transparent 0%, 
-    hsl(var(--lextract-signature-dark) / 0.15) 20%,
-    hsl(var(--lextract-signature-light) / 0.25) 50%,
-    hsl(var(--lextract-signature-dark) / 0.15) 80%,
+    hsl(var(--lextract-signature-dark) / 0.08) 20%,
+    hsl(var(--lextract-signature-light) / 0.15) 50%,
+    hsl(var(--lextract-signature-dark) / 0.08) 80%,
     transparent 100%
   );
   animation: verticalBeamSweep 8s linear infinite;
