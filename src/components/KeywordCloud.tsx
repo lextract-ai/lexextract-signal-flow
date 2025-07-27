@@ -5,7 +5,7 @@ const KEYWORDS_LARGE = [
   { text: 'TERMINATION RIGHTS', top: '10%', left: '12%' },
   { text: 'CHANGE OF CONTROL', top: '17%', left: '40%%' },
   { text: 'MERGER AGREEMENT', top: '23%', left: '40%' },
-  { text: 'CONSENT REQUIREMENTS', top: '70%', left: '10%' },
+  { text: 'CONSENT REQUIREMENTS', top: '80%', left: '10%' },
   { text: 'INSURANCE POLICY', top: '75%', left: '50%' },
 
   { text: 'NON-SOLICITATION', top: '30%', left: '25%' },
