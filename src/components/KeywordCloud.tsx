@@ -10,13 +10,13 @@ const KEYWORDS_LARGE = [
   { text: 'NON-SOLICITATION', top: '5%', left: '70%' },
   { text: 'EXPIRING TERMS', top: '67%', left: '60%' },
   { text: 'PRE-EMPTIVE RIGHTS', top: '78%', left: '8%' },
-    { text: 'CALL OPTION', top: '85%', left: '70%' },
+    { text: 'CALL OPTION', top: '85%', left: '80%' },
 
 
-    { text: 'COLLATERAL', top: '35%', left: '15%' },
+    { text: 'COLLATERAL', top: '18%', left: '75%' },
 
-  { text: 'PRICE GUARANTEE', top: '90%', left: '40%' },
-    { text: 'TAG ALONG RIGHT', top: '42%', left: '25%' }
+  { text: 'PRICE GUARANTEE', top: '80%', left: '68%' },
+    { text: 'TAG ALONG RIGHT', top: '45%', left: '80%' }
 ];
 
 // Use first 8 for "small" screens
