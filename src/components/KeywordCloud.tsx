@@ -2,7 +2,7 @@ import { useWindowWidth } from "../hooks/use-window-width";
 
 // All 12 keywords with static positions
 const KEYWORDS_LARGE = [
-  { text: 'TERMINATION RIGHTS', top: '10%', left: '12%' },
+  { text: 'TERMINATION RIGHTS', top: '10%', left: '15%' },
   { text: 'CHANGE OF CONTROL', top: '20%', left: '20%' },
   { text: 'MERGER AGREEMENT', top: '23%', left: '40%' },
   { text: 'CONSENT REQUIREMENTS', top: '80%', left: '10%' },
