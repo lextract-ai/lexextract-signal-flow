@@ -243,11 +243,9 @@ All colors MUST be HSL.
   pointer-events: none;
 
   /* NEW: move its own origin to the center */
-  transform: translate(-50%, -50%);
-  transform-origin: center center;
   transition: color 0.8s ease, opacity 0.8s ease, text-shadow 0.8s ease;
     z-index: 10;
-    opacity: 0.35;
+    opacity: 0.25;
     letter-spacing: 0.1em;
     font-weight: 500;
 
