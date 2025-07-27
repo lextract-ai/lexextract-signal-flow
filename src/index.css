@@ -245,7 +245,7 @@ All colors MUST be HSL.
   /* NEW: move its own origin to the center */
   transition: color 0.8s ease, opacity 0.8s ease, text-shadow 0.8s ease;
     z-index: 10;
-    opacity: 0.25;
+    opacity: 0.55;
     letter-spacing: 0.1em;
     font-weight: 500;
 
