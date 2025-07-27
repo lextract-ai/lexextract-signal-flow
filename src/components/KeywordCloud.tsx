@@ -7,11 +7,9 @@ const KEYWORDS_LARGE = [
   { text: 'MERGER AGREEMENT', top: '30%', left: '30%' },
   { text: 'CONSENT REQUIREMENTS', top: '70%', left: '20%' },
   { text: 'INSURANCE POLICY', top: '85%', left: '50%' },
-
   { text: 'NON-SOLICITATION', top: '5%', left: '70%' },
-
   { text: 'EXPIRING TERMS', top: '67%', left: '60%' },
-  { text: 'PRE-EMPTIVE RIGHTS', top: '85%', left: '50%' },
+  { text: 'PRE-EMPTIVE RIGHTS', top: '78%', left: '8%' },
     { text: 'CALL OPTION', top: '85%', left: '70%' },
 
 
