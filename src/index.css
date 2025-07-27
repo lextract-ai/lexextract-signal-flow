@@ -263,17 +263,6 @@ All colors MUST be HSL.
   z-index: 20;
 }
 
-/* Breakpoint-specific adjustments */
-@media (max-width: 640px) {
-  .keyword:nth-child(2) { top: 12% !important; left: 75% !important; }
-  .keyword:nth-child(4) { top: 32% !important; left: 20% !important; }
-}
-
-@media (min-width: 641px) and (max-width: 1024px) {
-  .keyword:nth-child(7) { top: 60% !important; left: 62% !important; }
-  .keyword:nth-child(5) { top: 38% !important; left: 68% !important; }
-}
-
 .text-noise {
   filter: none;
   opacity: 0.35;
