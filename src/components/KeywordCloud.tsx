@@ -4,14 +4,14 @@ import { useWindowWidth } from "../hooks/use-window-width";
 const KEYWORDS_LARGE = [
   { text: 'TERMINATION RIGHTS', top: '12%', left: '15%' },
   { text: 'CHANGE OF CONTROL', top: '23%', left: '40%' },
-  { text: 'MERGER AGREEMENT', top: '35%', left: '30%' },
+  { text: 'MERGER AGREEMENT', top: '30%', left: '30%' },
   { text: 'CONSENT REQUIREMENTS', top: '70%', left: '20%' },
   { text: 'INSURANCE POLICY', top: '85%', left: '50%' },
 
-  { text: 'NON-SOLICITATION', top: '30%', left: '25%' },
+  { text: 'NON-SOLICITATION', top: '5%', left: '70%' },
 
-  { text: 'EXPIRING TERMS', top: '60%', left: '60%' },
-  { text: 'PRE-EMPTIVE RIGHTS', top: '65%', left: '30%' },
+  { text: 'EXPIRING TERMS', top: '67%', left: '60%' },
+  { text: 'PRE-EMPTIVE RIGHTS', top: '85%', left: '50%' },
     { text: 'CALL OPTION', top: '85%', left: '70%' },
 
 
