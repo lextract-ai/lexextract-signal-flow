@@ -1,31 +1,32 @@
-import { useEffect, useState, useRef } from "react";
-import { FloatingKeyword } from "./FloatingKeyword";
+import { useWindowWidth } from "../hooks/use-window-width";
 
-const LEGAL_TERMS = [
-  "Force Majeure", "Indemnification", "Material Adverse Change",
-  "Change of Control", "Governing Law", "Termination", 
-  "EXPIRING TERMS", "Confidentiality", "Intellectual Property",
-  "Liability Cap", "Arbitration", "Jurisdiction",
-  "Amendment", "Warranties", "Covenants",
-  "Merger", "Joint Venture", "Escrow"
+// All 12 keywords with static positions
+const KEYWORDS_LARGE = [
+  { text: 'TERMINATION RIGHTS', top: '10%', left: '12%' },
+  { text: 'CHANGE OF CONTROL', top: '15%', left: '72%' },
+  { text: 'MERGER AGREEMENT', top: '22%', left: '50%' },
+  { text: 'TAG ALONG RIGHT', top: '30%', left: '25%' },
+  { text: 'NON-SOLICITATION', top: '35%', left: '65%' },
+  { text: 'COLLATERAL', top: '45%', left: '15%' },
+  { text: 'EXPIRING TERMS', top: '55%', left: '60%' },
+  { text: 'PRE-EMPTIVE RIGHTS', top: '65%', left: '30%' },
+  { text: 'CONSENT REQUIREMENTS', top: '75%', left: '10%' },
+  { text: 'INSURANCE POLICY', top: '80%', left: '50%' },
+  { text: 'CALL OPTION', top: '85%', left: '70%' },
+  { text: 'PRICE GUARANTEE', top: '90%', left: '40%' },
 ];
 
-const SIGNAL_TERMS = ["Change of Control", "Governing Law", "Termination"];
+// Use first 8 for "small" screens
+const KEYWORDS_SMALL = KEYWORDS_LARGE.slice(0, 8);
+// Use first 5 for "mobile"
+const KEYWORDS_MOBILE = KEYWORDS_LARGE.slice(0, 5);
 
-const COLLISION_MARGIN = 16; // px
+const SIGNAL_TERMS = ["CHANGE OF CONTROL", "TERMINATION RIGHTS", "EXPIRING TERMS"];
 
-interface BoundingBox {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-}
-
-interface KeywordPosition {
+interface KeywordData {
   text: string;
-  isSignal: boolean;
-  x: number;
-  y: number;
+  top: string;
+  left: string;
 }
 
 interface KeywordCloudProps {
@@ -34,128 +35,35 @@ interface KeywordCloudProps {
   headingRef: React.RefObject<HTMLElement>;
 }
 
-export const KeywordCloud = ({ animationCycle, scannerProgress, headingRef }: KeywordCloudProps) => {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [keywordPositions, setKeywordPositions] = useState<KeywordPosition[]>([]);
+export const KeywordCloud = ({ animationCycle, scannerProgress }: KeywordCloudProps) => {
+  const width = useWindowWidth();
+  
+  // Select keyword array based on viewport width
+  const keywords = width <= 640
+    ? KEYWORDS_MOBILE
+    : width <= 1024
+      ? KEYWORDS_SMALL
+      : KEYWORDS_LARGE;
 
-  const isOverlapping = (a: BoundingBox, b: BoundingBox): boolean => {
-    return !(
-      a.x + a.width + COLLISION_MARGIN < b.x ||
-      b.x + b.width + COLLISION_MARGIN < a.x ||
-      a.y + a.height + COLLISION_MARGIN < b.y ||
-      b.y + b.height + COLLISION_MARGIN < a.y
-    );
-  };
-
-  const generateKeywordPositions = (): KeywordPosition[] => {
-    if (!containerRef.current) return [];
-
-    const containerRect = containerRef.current.getBoundingClientRect();
-    const placedBoxes: BoundingBox[] = [];
-
-    // Add heading bounding box to avoid overlap
-    if (headingRef.current) {
-      const headingRect = headingRef.current.getBoundingClientRect();
-      const relativeHeadingBox: BoundingBox = {
-        x: ((headingRect.left - containerRect.left) / containerRect.width) * 100,
-        y: ((headingRect.top - containerRect.top) / containerRect.height) * 100,
-        width: (headingRect.width / containerRect.width) * 100,
-        height: (headingRect.height / containerRect.height) * 100
-      };
-      placedBoxes.push(relativeHeadingBox);
-    }
-
-    const positions: KeywordPosition[] = [];
-    const isMobile = window.innerWidth < 768;
-    const isTablet = window.innerWidth < 1024;
-    
-    const targetCount = isMobile ? 6 : isTablet ? 8 : 10;
-    const gridSize = isMobile ? 4 : isTablet ? 5 : 6;
-    const cellSize = 100 / gridSize; // Percentage
-    const maxAttempts = 50;
-
-    // Estimate keyword dimensions (in percentage)
-    const avgKeywordWidth = isMobile ? 8 : 6;
-    const keywordHeight = 2;
-
-    for (let i = 0; i < targetCount && i < LEGAL_TERMS.length; i++) {
-      const text = LEGAL_TERMS[i];
-      const isSignal = SIGNAL_TERMS.includes(text);
-      let placed = false;
-      let attempts = 0;
-
-      while (!placed && attempts < maxAttempts) {
-        // Grid-based positioning with random offsets
-        const gridX = Math.floor(Math.random() * gridSize);
-        const gridY = Math.floor(Math.random() * gridSize);
-        
-        const baseX = gridX * cellSize + cellSize / 2;
-        const baseY = gridY * cellSize + cellSize / 2;
-        
-        // Add random offset within the cell
-        const offsetX = (Math.random() - 0.5) * cellSize * 0.6;
-        const offsetY = (Math.random() - 0.5) * cellSize * 0.6;
-        
-        const x = Math.max(avgKeywordWidth / 2, Math.min(100 - avgKeywordWidth / 2, baseX + offsetX));
-        const y = Math.max(keywordHeight / 2, Math.min(100 - keywordHeight / 2, baseY + offsetY));
-
-        const proposedBox: BoundingBox = {
-          x: x - avgKeywordWidth / 2,
-          y: y - keywordHeight / 2,
-          width: avgKeywordWidth,
-          height: keywordHeight
-        };
-
-        const hasCollision = placedBoxes.some(box => isOverlapping(proposedBox, box));
-
-        if (!hasCollision) {
-          positions.push({ text, isSignal, x, y });
-          placedBoxes.push(proposedBox);
-          placed = true;
-        }
-
-        attempts++;
-      }
-    }
-
-    return positions;
-  };
-
-  useEffect(() => {
-    const generatePositions = () => {
-      const positions = generateKeywordPositions();
-      setKeywordPositions(positions);
-    };
-
-    // Generate positions after a small delay to ensure refs are ready
-    const timer = setTimeout(generatePositions, 100);
-    
-    // Regenerate on window resize
-    const handleResize = () => {
-      setTimeout(generatePositions, 100);
-    };
-
-    window.addEventListener('resize', handleResize);
-    
-    return () => {
-      clearTimeout(timer);
-      window.removeEventListener('resize', handleResize);
-    };
-  }, [animationCycle, headingRef]);
+  // Convert scannerProgress (0-1) to scanY percentage
+  const scanY = scannerProgress * 100;
 
   return (
-    <div ref={containerRef} className="absolute inset-0">
-      {keywordPositions.map((position, index) => (
-        <FloatingKeyword
-          key={`${position.text}-${position.x}-${position.y}-${index}-${animationCycle}`}
-          text={position.text}
-          isSignal={position.isSignal}
-          x={position.x}
-          y={position.y}
-          animationCycle={animationCycle}
-          scannerProgress={scannerProgress}
-        />
-      ))}
+    <div className="keyword-cloud">
+      {keywords.map(({ text, top, left }, index) => {
+        const isSignal = SIGNAL_TERMS.includes(text);
+        const isHighlighted = scanY >= parseFloat(top);
+        
+        return (
+          <span
+            key={`${text}-${animationCycle}-${index}`}
+            className={`keyword${isHighlighted ? ' highlighted' : ''}`}
+            style={{ top, left }}
+          >
+            {text}
+          </span>
+        );
+      })}
     </div>
   );
 };

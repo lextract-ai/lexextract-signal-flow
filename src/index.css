@@ -226,6 +226,46 @@ All colors MUST be HSL.
 }
 
 /* Lextract Animation Classes */
+
+/* Keyword Cloud Styles */
+.keyword-cloud { 
+  position: relative; 
+  width: 100%; 
+  height: 100%; 
+}
+
+.keyword {
+  position: absolute;
+  white-space: nowrap;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: hsl(var(--lextract-noise));
+  opacity: 0.35;
+  transition: color 0.8s ease, opacity 0.8s ease, text-shadow 0.8s ease;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.keyword.highlighted { 
+  color: hsl(var(--lextract-signal));
+  opacity: 1;
+  text-shadow: 0 0 8px hsl(var(--lextract-signal) / 0.6);
+  z-index: 20;
+}
+
+/* Breakpoint-specific adjustments */
+@media (max-width: 640px) {
+  .keyword:nth-child(2) { top: 12% !important; left: 75% !important; }
+  .keyword:nth-child(4) { top: 32% !important; left: 20% !important; }
+}
+
+@media (min-width: 641px) and (max-width: 1024px) {
+  .keyword:nth-child(7) { top: 60% !important; left: 62% !important; }
+  .keyword:nth-child(5) { top: 38% !important; left: 68% !important; }
+}
+
 .text-noise {
   filter: none;
   opacity: 0.35;
@@ -265,15 +305,4 @@ All colors MUST be HSL.
     hsl(var(--lextract-signature-light))
   );
   animation: signalWave 4s ease-in-out infinite;
-}
-
-/* Keyword styling */
-.keyword {
-  transition: color 0.8s ease;
-}
-
-.highlighted {
-  color: hsl(var(--lextract-signal)) !important;
-  opacity: 1 !important;
-  text-shadow: 0 0 8px hsl(var(--lextract-signal) / 0.6) !important;
 }
