@@ -55,12 +55,18 @@ export const KeywordCloud = ({ animationCycle, scannerProgress }: KeywordCloudPr
     <div className="keyword-cloud">
       {keywords.map(({ text, top, left }, index) => {
         const isSignal = SIGNAL_TERMS.includes(text);
-        const isHighlighted = scanY >= parseFloat(top);
+        const normalizedLeft = parseFloat(left) / 100;
+        const isVisible = scannerProgress >= normalizedLeft;
         
         return (
           <span
             key={`${text}-${animationCycle}-${index}`}
-            className={`keyword${isHighlighted ? ' highlighted' : ''}`}
+            className={`
+              absolute text-xs font-sans tracking-wider uppercase select-none whitespace-nowrap
+              transition-all duration-800 ease-in-out
+              ${isVisible ? 'opacity-100 text-[#08EFF5]' : 'opacity-0 text-gray-300'}
+              ${isVisible && isSignal ? 'drop-shadow-[0_0_8px_rgba(8,239,245,0.6)]' : ''}
+            `}
             style={{ top, left }}
           >
             {text}
